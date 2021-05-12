@@ -1,0 +1,17 @@
+---
+- name: Test job apply
+  gather_facts: false
+  hosts: all
+  tasks:
+    - name: Touch a file, using symbolic modes to set the permissions (equivalent to 0644)
+      file:
+        path: "{{ file_name }}"
+        state: touch
+    - name: Verify
+      shell: "ls -l /tmp/foo"
+      register: playbook_path_output
+    - debug: var=playbook_path_output.stdout
+    - name: Remove file (delete file)
+      file:
+        path: "{{ file_name }}"
+        state: absent

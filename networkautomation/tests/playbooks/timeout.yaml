@@ -1,0 +1,8 @@
+---
+- name: Test job timeout
+  connection: localhost
+  gather_facts: false
+  hosts: all
+  tasks:
+    - name: Shell sleep 5s
+      shell: "sleep 5"
