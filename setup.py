@@ -16,5 +16,6 @@ setup(
     author_email='datlq3@viettel.com.vn',
     description='Network Automation Framework',
     install_requires=[
+        'ansible',
     ]
 )
