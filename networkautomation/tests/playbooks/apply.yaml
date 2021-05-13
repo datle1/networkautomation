@@ -2,8 +2,10 @@
 - name: Test job apply
   gather_facts: false
   hosts: all
+  become: false
+  connection: local
   tasks:
-    - name: Touch a file, using symbolic modes to set the permissions (equivalent to 0644)
+    - name: Touch a file "{{ file_name }}"
       file:
         path: "{{ file_name }}"
         state: touch

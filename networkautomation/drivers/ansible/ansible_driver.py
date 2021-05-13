@@ -20,24 +20,15 @@ class AnsibleDriver(DriverBase):
               'Ansible run event:', event)
         playbook = templates.get(event)
         if playbook:
-            try:
-                config = self.config
-                result = libansible.execute_playbook(
-                    playbook,
-                    config['ssh-host'],
-                    config['ssh-user'],
-                    config['ssh-pass'],
-                    vars
-                )
-                self.set_result("Playbook " + playbook + ": " + str(result))
-            except:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                err = traceback.format_exception(exc_type, exc_value, exc_traceback)
-                self.set_result("Playbook " + playbook + " failed: " + str(err))
-                raise Exception
+            config = self.config
+            result, error = libansible.execute_playbook(
+                playbook,
+                config['ssh-host'],
+                config['ssh-user'],
+                config['ssh-pass'],
+                vars
+            )
+            return error
         else:
             print("Template is not found")
-
-    def set_result(self, message):
-        print(message)
-        return
+            return None

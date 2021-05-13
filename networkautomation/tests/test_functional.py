@@ -27,9 +27,10 @@ class Test(TestCase):
                                              templates=playbooks, vars=vars,
                                              timeout=180)
         if result == True:
-            print("Ansible job is successful")
+            print('Ansible job is successful')
         else:
-            print("Ansible job is failed. Reason: " + error)
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (True, None))
 
 
     def test_execute_rest_job(self):
@@ -37,19 +38,21 @@ class Test(TestCase):
                                                   'fortinet',
                                                   'fortios',
                                                   '7.1',
-                                                  {'user': 'admin', 'password': 'admin'},
+                                                  {'user': 'admin',
+                                                   'password': 'admin'},
                                                   '10.10.10.11')
         job_mgmt = job_manager.JobManager()
         result, error = job_mgmt.execute_job(common.JobType.CONFIGURATION,
                                              target, role='vlan',
                                              action=common.ActionType.CREATE)
         if result == True:
-            print("Rest job is successful")
+            print('Rest job is successful')
         else:
-            print("Rest job is failed. Reason: " + error)
+            print('Rest job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (True, None))
 
 
-    def test_execute_ansible_job_timeout(self):
+    def test_execute_ansible_job_timeout_backup(self):
         playbooks = {
             'BACKUP': 'playbooks/timeout.yaml'
         }
@@ -60,13 +63,88 @@ class Test(TestCase):
                                                   '2.0',
                                                   {'username': 'admin',
                                                    'password': 'admin'},
-                                                  '10.10.10.10')
+                                                  '127.0.0.1')
         job_mgmt = job_manager.JobManager()
         result, error = job_mgmt.execute_job(common.JobType.PROVISIONING, target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks, vars=vars,
                                              timeout=1)
         if result == True:
-            print("Ansible job is successful")
+            print('Ansible job is successful')
         else:
-            print("Ansible job is failed. Reason: " + error)
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (False, 'Task BACKUP got timeout| '))
+
+
+    def test_execute_ansible_job_timeout_apply(self):
+        playbooks = {
+            'APPLY': 'playbooks/timeout.yaml'
+        }
+        vars = {'vlan_id': 123}
+        target = network_function.NetworkFunction('vloadbalancer',
+                                                  'openstack',
+                                                  'octavia',
+                                                  '2.0',
+                                                  {'username': 'admin',
+                                                   'password': 'admin'},
+                                                  '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING, target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks, vars=vars,
+                                             timeout=1)
+        if result == True:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (False, 'Task APPLY got timeout| '))
+
+
+    def test_execute_ansible_job_timeout_verify(self):
+        playbooks = {
+            'VERIFY': 'playbooks/timeout.yaml'
+        }
+        vars = {'vlan_id': 123}
+        target = network_function.NetworkFunction('vloadbalancer',
+                                                  'openstack',
+                                                  'octavia',
+                                                  '2.0',
+                                                  {'username': 'admin',
+                                                   'password': 'admin'},
+                                                  '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING, target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks, vars=vars,
+                                             timeout=1)
+        if result == True:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (False, 'Task VERIFY got timeout| '))
+
+
+    def test_execute_ansible_job_timeout_rollback(self):
+        playbooks = {
+            'APPLY': 'playbooks/timeout.yaml',
+            'ROLLBACK': 'playbooks/timeout.yaml'
+        }
+        vars = {'vlan_id': 123}
+        target = network_function.NetworkFunction('vloadbalancer',
+                                                  'openstack',
+                                                  'octavia',
+                                                  '2.0',
+                                                  {'username': 'admin',
+                                                   'password': 'admin'},
+                                                  '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING, target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks, vars=vars,
+                                             timeout=1)
+        if result == True:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (False, 'Task APPLY got timeout| '
+                                                  'Task ROLLBACK got timeout| '))

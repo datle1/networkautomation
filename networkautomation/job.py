@@ -4,12 +4,12 @@ import time
 import traceback
 
 import psutil
-
 import networkautomation.drivers.driver_manager as driver_manager
 import networkautomation.utils as utils
 from networkautomation.common import *
 from networkautomation.network_function import NetworkFunction
 
+TASK_OK = 'OK'
 
 class Job:
     def __init__(self, job_type: JobType, target: NetworkFunction,
@@ -43,20 +43,24 @@ class Job:
     def run_single_process(self, driver, state, target, templates, vars,
                            child_conn):
         try:
-            driver.execute(state, target, templates, vars)
+            error = driver.execute(state, target, templates, vars)
+            if error:
+                child_conn.send(str(error))
+            else:
+                child_conn.send(TASK_OK)
+            child_conn.close()
         except Exception as err:
             print("Task raised: %s" % err)
             print(traceback.format_exc())
             child_conn.send(str(err))
             child_conn.close()
-            exit(-1)
 
     def execute(self, timeout):
         if self.run_task(JobStatus.BACKUP, timeout) \
             and self.run_task(JobStatus.APPLY, timeout) \
                 and self.run_task(JobStatus.VERIFY, timeout):
                     self.status = JobStatus.FINISHED
-                    return True, ''
+                    return True, None
         return False, self.error
 
     def recover(self, state, timeout):
@@ -77,21 +81,22 @@ class Job:
         p.start()
         self.pid = p.pid
         p.join(timeout=timeout)
-        if p.exitcode == 0:
-            # Task is done
-            return True
+        if p.exitcode == None:
+            # Timeout then, terminate process
+            print("Task is timeout after " + str(timeout))
+            self.error = self.error + "Task " + self.state.value + " got timeout| "
+            self.terminate()
         else:
-            if p.exitcode == None:
-                # Timeout then, terminate process
-                print("Task is timeout after " + str(timeout))
-                self.error = self.error + "Timeout| "
-                self.terminate()
+            res = parent_conn.recv()
+            if res == TASK_OK:
+                # Task is done and successful
+                return True
             else:
-                err = parent_conn.recv()
-                print("Task got exception: %s" % err)
-                self.error = self.error + err + "| "
-            self.recover(self.state, timeout)
-            return False
+                # Task is done but fail
+                print("Task failed: %s" % res)
+                self.error = self.error + res + "| "
+        self.recover(self.state, timeout)
+        return False
 
     def kill(self, pid):
         try:

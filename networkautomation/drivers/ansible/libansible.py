@@ -9,9 +9,9 @@ from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 
 
-inventory_path = "/tmp/inventory"
+INVENTORY_FILE = "/tmp/inventory"
 
-class TaskResult(Enum):
+class PlaybookResult(Enum):
     RUN_OK = 0
     RUN_ERROR = 1
     RUN_FAILED_HOSTS = 2
@@ -19,12 +19,11 @@ class TaskResult(Enum):
     RUN_FAILED_BREAK_PLAY = 8
     RUN_UNKNOWN_ERROR = 255
 
-def create_hosts(hostname, username, password, hosts):
+def create_inventory(inventory_path, host, username, password, group):
     with open(inventory_path, 'w') as f:
-        f.write('[{}]\n'.format(hosts))
-        h1 = '{0} ansible_connection=network_cli ansible_network_os=vyos ' \
-             'ansible_ssh_user={1} ansible_ssh_pass={2} ' \
-             'ansible_python_interpreter=/usr/bin/python\n'.format(hostname, username, password)
+        f.write('[{}]\n'.format(group))
+        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2}\n'\
+            .format(host, username, password)
         f.write(h1)
 
 
@@ -41,8 +40,8 @@ def execute_playbook(playbook, host, user, password, variables):
                                     become_method='sudo', become_user='root',
                                     verbosity=True, check=False, serial=1,
                                     start_at_task=None)
-    create_hosts(host, user, password, 'all')
-    inventory = InventoryManager(loader=loader, sources=[inventory_path])
+    create_inventory(INVENTORY_FILE, host, user, password, 'all')
+    inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
     if variables:
         variable_manager.extra_vars.update(variables)
@@ -53,9 +52,14 @@ def execute_playbook(playbook, host, user, password, variables):
                                 passwords={'conn_pass': password})
     try:
         results = executor.run()
-        msg = TaskResult(results).name
-        return msg
+        msg = PlaybookResult(results)
+        if msg == PlaybookResult.RUN_OK:
+            return True, None
+        else:
+            return False, msg
     except AnsibleError as err:
+        print(err.message)
         executor._tqm.cleanup()
         loader.cleanup_all_tmp_files()
-        return err.message
+        return False, err.message
+
