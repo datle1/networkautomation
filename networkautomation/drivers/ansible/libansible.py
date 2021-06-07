@@ -45,7 +45,7 @@ def execute_playbook(playbook, host, user, password, extra_vars):
                                 inventory=inventory,
                                 variable_manager=variable_manager,
                                 loader=loader,
-                                passwords={'conn_pass': password})
+                                passwords=None)
     try:
         results = executor.run()
         msg = PlaybookResult(results)
