@@ -40,6 +40,7 @@ class DriverFactory:
         given in ``kwargs``.
         Args:
             name (str): The name of the Driver to create.
+            nf (NetworkFunction): A object of Network Function.
         Returns:
             An instance of the Driver that is created.
         """
@@ -53,8 +54,9 @@ class DriverFactory:
         return driver
 
     @classmethod
-    def get_driver(cls, role: str, action: str, nf: NetworkFunction) -> (str):
-        profile_name = nf.type + '.' + nf.vendor + '.' + nf.os + ':' + role + ':' + action
+    def get_driver(cls, element: str, action: str, nf: NetworkFunction) -> (str):
+        profile_name = nf.type + '.' + nf.vendor + '.' + nf.os + ':' + \
+                       element + ':' + action
         if profile_name not in cls.profile_map:
             print('Profile %s does not exist in the registry' % profile_name)
             return None

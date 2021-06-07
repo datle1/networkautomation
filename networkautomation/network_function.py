@@ -4,11 +4,11 @@ from networkautomation import utils
 
 
 class NetworkFunction:
-    def __init__(self, type, vendor, os, 
-                    version, credential, mgmt_ip,
-                    data_ip=None, metadata=None, id=None):
-        self.id = id or utils.gen_uuid()
-        self.type = type
+    def __init__(self, nf_type, vendor, os,
+                 version, credential, mgmt_ip,
+                 data_ip=None, metadata=None, nf_id=None):
+        self.id = nf_id or utils.gen_uuid()
+        self.type = nf_type
         self.vendor = vendor
         self.os = os
         self.version = version
@@ -22,11 +22,11 @@ class NetworkFunction:
 
     @classmethod
     def deserialize(cls, dict_str):
-        dict = json.JSONDecoder().decode(dict_str)
-        return NetworkFunction(dict['type'], dict['vendor'], dict['os'],
-                    dict['version'], dict['credential'], dict['mgmt_ip'],
-                    data_ip=dict['data_ip'], metadata=dict['metadata'],
-                     id=dict['id'])
+        temp = json.JSONDecoder().decode(dict_str)
+        return NetworkFunction(temp['type'], temp['vendor'], temp['os'],
+                               temp['version'], temp['credential'],
+                               temp['mgmt_ip'], data_ip=temp['data_ip'],
+                               metadata=temp['metadata'], nf_id=temp['id'])
 
     def to_dict(self):
         return self.__dict__

@@ -5,11 +5,11 @@ setup(
     name='networkautomation',
     version='0.1',
     packages=find_packages(
-        where = '.',
-        include = ['networkautomation*'],
-        exclude = ['*test*']
+        where='.',
+        include=['networkautomation*'],
+        exclude=['*test*']
     ),
-    package_dir = {"":"."},
+    package_dir={"": "."},
     url='',
     license='',
     author='datlq3',
@@ -17,5 +17,6 @@ setup(
     description='Network Automation Framework',
     install_requires=[
         'ansible',
+        'psutil',
     ]
 )

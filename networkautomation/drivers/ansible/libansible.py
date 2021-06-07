@@ -8,8 +8,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 
-
 INVENTORY_FILE = "/tmp/inventory"
+
 
 class PlaybookResult(Enum):
     RUN_OK = 0
@@ -19,32 +19,28 @@ class PlaybookResult(Enum):
     RUN_FAILED_BREAK_PLAY = 8
     RUN_UNKNOWN_ERROR = 255
 
+
 def create_inventory(inventory_path, host, username, password, group):
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
-        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2}\n'\
+        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2}\n' \
             .format(host, username, password)
         f.write(h1)
 
 
-def execute_playbook(playbook, host, user, password, variables):
+def execute_playbook(playbook, host, user, password, extra_vars):
     loader = DataLoader()
     context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
-                                    connection='ssh',
-                                    module_path=None, forks=1,
-                                    remote_user=user, private_key_file=None,
-                                    ssh_common_args=None, ssh_extra_args=None,
-                                    sftp_extra_args=None, scp_extra_args=None,
-                                    become=True, run_one=True,
-                                    become_method='sudo', become_user='root',
-                                    verbosity=True, check=False, serial=1,
-                                    start_at_task=None)
+                                    module_path=None, verbosity=True,
+                                    check=False, start_at_task=None,
+                                    forks=1)
     create_inventory(INVENTORY_FILE, host, user, password, 'all')
     inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
-    if variables:
-        variable_manager.extra_vars.update(variables)
+    if extra_vars:
+        variable_manager.extra_vars.update(extra_vars)
+
     executor = PlaybookExecutor(playbooks=[playbook],
                                 inventory=inventory,
                                 variable_manager=variable_manager,
@@ -62,4 +58,3 @@ def execute_playbook(playbook, host, user, password, variables):
         executor._tqm.cleanup()
         loader.cleanup_all_tmp_files()
         return False, err.message
-

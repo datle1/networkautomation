@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class JobStatus(Enum):
+class JobState(Enum):
     INIT = 'INIT'
     APPLY = 'APPLY'
     BACKUP = 'BACKUP'
@@ -11,7 +11,7 @@ class JobStatus(Enum):
 
 
 class JobType(Enum):
-    PROVISIONING = 'provisioing'
+    PROVISIONING = 'provisioning'
     CONFIGURATION = 'configuration'
 
 

@@ -1,6 +1,3 @@
-import sys
-import traceback
-
 from networkautomation.drivers.ansible import libansible
 from networkautomation.drivers.driver_factory import *
 from networkautomation.common import DriverType
@@ -10,12 +7,11 @@ from networkautomation.common import DriverType
 class AnsibleDriver(DriverBase):
 
     def __init__(self, nf: NetworkFunction):
-        self.config = {}
-        self.config['ssh-host'] = nf.mgmt_ip
-        self.config['ssh-user'] = nf.credential['username']
-        self.config['ssh-pass'] = nf.credential['password']
+        self.config = {'ssh-host': nf.mgmt_ip,
+                       'ssh-user': nf.credential['username'],
+                       'ssh-pass': nf.credential['password']}
 
-    def execute(self, event, target, templates, vars):
+    def execute(self, event, target, templates, extra_vars):
         print('===========================================\n'
               'Ansible run event:', event)
         playbook = templates.get(event)
@@ -26,7 +22,7 @@ class AnsibleDriver(DriverBase):
                 config['ssh-host'],
                 config['ssh-user'],
                 config['ssh-pass'],
-                vars
+                extra_vars
             )
             return error
         else:
