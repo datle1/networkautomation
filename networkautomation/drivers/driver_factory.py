@@ -55,8 +55,8 @@ class DriverFactory:
 
     @classmethod
     def get_driver(cls, element: str, action: str, nf: NetworkFunction) -> (str):
-        profile_name = nf.type + '.' + nf.vendor + '.' + nf.os + ':' + \
-                       element + ':' + action
+        profile_name = nf.type + '.' + nf.vendor + '.' + nf.os + '.' \
+                       + nf.version + ':' + element + ':' + action
         if profile_name not in cls.profile_map:
             print('Profile %s does not exist in the registry' % profile_name)
             return None
