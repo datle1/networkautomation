@@ -3,30 +3,28 @@ from unittest import TestCase
 from networkautomation import common, job_manager, network_function
 
 
-class Test(TestCase):
+class FunctionalTest(TestCase):
     def test_execute_ansible_job(self):
         playbooks = {
             'APPLY': 'playbooks/apply.yaml',
-            # 'BACKUP': '/home/dat/networkautomation/networkautomation'
-            #          '/drivers/ansible/playbooks/timeout.yaml',
-            # 'ROLLBACK' : '/home/dat/networkautomation/networkautomation'
-            #          '/drivers/ansible/playbooks/rollback.yaml',
-            # 'VERIFY' : '/home/dat/networkautomation/networkautomation'
-            #          '/drivers/ansible/playbooks/verify.yaml'
+            # 'BACKUP': 'playbooks/backup.yaml',
+            # 'ROLLBACK' : 'playbooks/rollback.yaml',
+            # 'VERIFY' : 'playbooks/verify.yaml'
         }
-        extra_vars = {'file_name': '/tmp/foo'}
+        extra_vars = {'loadbalancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
                                                   '2.0',
-                                                  {'username': 'dat',
-                                                   'password': 'dat'},
+                                                  {'username': 'admin',
+                                                   'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
         result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
+                                             element='loadbalancer',
                                              extra_vars=extra_vars,
                                              timeout=180)
         if result:
@@ -44,8 +42,10 @@ class Test(TestCase):
                                                    'password': 'admin'},
                                                   '10.10.10.11')
         job_mgmt = job_manager.JobManager()
+        extra_vars = {'vlan-config': {'vlan-id': 4094, 'name': 'vlanTest'}}
         result, error = job_mgmt.execute_job(common.JobType.CONFIGURATION,
                                              target, element='vlan',
+                                             extra_vars=extra_vars,
                                              action=common.ActionType.CREATE)
         if result:
             print('Rest job is successful')

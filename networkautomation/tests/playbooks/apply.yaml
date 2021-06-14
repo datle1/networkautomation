@@ -4,15 +4,15 @@
   hosts: all
   connection: local
   tasks:
-    - name: Touch a file "{{ file_name }}"
+    - name: Touch a file "{{ loadbalancer.name }}"
       file:
-        path: "{{ file_name }}"
+        path: "{{ loadbalancer.name }}"
         state: touch
     - name: Verify
-      shell: "ls -l /tmp/foo"
+      shell: "ls -l {{ loadbalancer.name }}"
       register: playbook_path_output
     - debug: var=playbook_path_output.stdout
     - name: Remove file (delete file)
       file:
-        path: "{{ file_name }}"
+        path: "{{ loadbalancer.name }}"
         state: absent

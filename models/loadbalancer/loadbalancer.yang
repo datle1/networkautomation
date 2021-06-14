@@ -1,0 +1,268 @@
+module loadbalancer {
+    yang-version 1.1;
+    namespace "urn:etsi:osm:yang:augments:load-balancer";
+    prefix "load-balancer";
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    grouping admin-state-up {
+      leaf admin-state-up {
+        description
+          "The administrative state of the resource, which is up (true) or down (false).";
+        type boolean;
+        default true;
+      }
+    }
+
+    grouping loadbalancer-attributes {
+      description "Load balancer attributes.";
+      uses admin-state-up;
+
+      leaf name {
+        description
+          "Name of the load balancer";
+        type string;
+      }
+
+      leaf provider {
+        description
+          "Provider name for the load balancer.";
+        type enumeration {
+          enum "octavia";
+          enum "a10";
+        }
+        default "octavia";
+      }
+
+      leaf project-id {
+        description
+          "The ID of the project owning this resource.";
+        type string;
+      }
+
+      leaf address {
+        description
+          "The IP address of the loadbalancer";
+        type inet:ip-address;
+      }
+
+      choice vip-network-input {
+        description
+          "There are three ways to specify a VIP network for the load balancer.";
+        mandatory true;
+        case port {
+          leaf port-id {
+            description
+              "Providing a neutron port ID for the vip_port_id tells octavia to use this port for the VIP";
+            type string;
+          }
+        }
+        case subnet {
+          leaf subnet-id {
+            description
+              "The ID of the subnet for the Virtual IP (VIP)";
+            type string;
+          }
+        }
+        case network {
+          leaf network-id {
+            description
+              "The ID of the network for the Virtual IP (VIP).";
+            type string;
+          }
+        }
+      }
+    }
+
+    grouping listener-attributes {
+      description "Listener attributes.";
+      uses admin-state-up;
+      leaf name {
+        description "Name of the listener.";
+        type string;
+      }
+
+      leaf protocol {
+        description
+          "The protocol for the resource. One of HTTP, HTTPS, SCTP, TCP, TERMINATED_HTTPS, or UDP.";
+        type enumeration {
+          enum HTTP;
+          enum HTTPS;
+          enum SCTP;
+          enum TCP;
+          enum TERMINATED_HTTPS;
+          enum UDP;
+        }
+        default "HTTP";
+      }
+      leaf protocol-port {
+        description
+          "The protocol port number for the resource.";
+        type uint16 {
+            range 0..65535;
+        }
+      }
+      leaf connection-limit {
+        description
+          "Maximum connections this load balancer can have. Default is infinite.";
+        type int32 {
+          range -1..65535;
+        }
+        default -1;
+      }
+    }
+
+    grouping pool-attributes {
+      description "Pool attributes.";
+      uses admin-state-up;
+      leaf name {
+        description "Name of the pool.";
+        type string;
+      }
+      leaf-list listeners {
+        description
+          "The ID of the listener for the pool.";
+        type string;
+      }
+      leaf protocol {
+        description
+          "The protocol for the resource. One of HTTP, HTTPS, SCTP, TCP, TERMINATED_HTTPS, or UDP.";
+        type enumeration {
+          enum HTTP;
+          enum HTTPS;
+          enum SCTP;
+          enum TCP;
+          enum TERMINATED_HTTPS;
+          enum UDP;
+        }
+        mandatory true;
+      }
+      leaf lb-algorithm {
+        description
+          "The load balancing algorithm for the pool.";
+        type enumeration {
+          enum LEAST_CONNECTIONS;
+          enum ROUND_ROBIN;
+          enum SOURCE_IP;
+          enum SOURCE_IP_PORT;
+        }
+        default "ROUND_ROBIN";
+      }
+      container session-persistence {
+        description
+          "The session persistence algorithm. This algorithm is a dictionary with type and cookie_name keys.";
+        leaf cookie-name {
+          type string;
+          description "Cookie Name.";
+        }
+        leaf type {
+          type string;
+          description "Cookie type.";
+        }
+      }
+    }
+
+    grouping member-attributes {
+      uses admin-state-up;
+      leaf name {
+        description
+          "Name of the member.";
+        type string;
+      }
+      leaf protocol-port {
+        description
+          "The protocol port number for the resource.";
+        type uint16 {
+          range 0..65535;
+        }
+      }
+      leaf address {
+        description
+          "IP address of the member.";
+        type inet:ip-address;
+      }
+      leaf weight {
+        description
+          "Weight of member.";
+        type uint16 {
+          range 0..256;
+        }
+        default 1;
+      }
+    }
+
+    grouping healthmonitor-attributes {
+      uses admin-state-up;
+      leaf name {
+        description
+          "Name of the healthmonitor.";
+        type string;
+        mandatory true;
+      }
+
+      leaf-list pools {
+        description
+          "ID of pools associated with healthmonitor.";
+        type string;
+      }
+
+      leaf type {
+        description
+          "Type of the healthmonitor.";
+        type string;
+        mandatory true;
+      }
+      leaf delay {
+        description
+          "The interval, in seconds, between health checks.";
+        type uint32;
+      }
+      leaf timeout {
+        description
+          "The time, in seconds, after which a health check times out.";
+        type uint32;
+      }
+      leaf retry-up {
+        description
+          "The number of successful checks before changing the operating status of the member to ONLINE. A valid value is from 1 to 10.";
+        type uint16 {
+          range 1..10;
+        }
+      }
+      leaf retry-down {
+        description
+          "The number of allowed checks before changing the operating status of the member to ERROR. A valid value is from 1 to 10.";
+        type uint16 {
+          range 1..10;
+        }
+      }
+    }
+    grouping extended-load-balancer {
+      list load-balancer {
+        key "name";
+        uses loadbalancer-attributes;
+
+        list listener {
+          key "name";
+          uses listener-attributes;
+        }
+
+        list pool {
+          key "name";
+          uses pool-attributes;
+          list member {
+            key "name";
+            uses member-attributes;
+          }
+          container healthmonitor {
+            uses healthmonitor-attributes;
+          }
+        }
+      }
+    }
+    container loadbalancer {
+      uses loadbalancer-attributes;
+    }
+}

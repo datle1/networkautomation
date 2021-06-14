@@ -6,6 +6,7 @@ import traceback
 import psutil
 import networkautomation.drivers.driver_manager as driver_manager
 import networkautomation.utils as utils
+from networkautomation import data_model
 from networkautomation.common import *
 from networkautomation.network_function import NetworkFunction
 
@@ -52,6 +53,8 @@ class Job:
         self.driver = None
         self.vars = extra_vars
         self.pid = None
+        if element:
+            data_model.DataModel.validate_data(extra_vars, element)
         if driver_type:
             self.driver = driver_manager.get_driver_from_name(
                 driver_type.value, self.target)
