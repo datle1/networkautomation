@@ -23,7 +23,8 @@ class PlaybookResult(Enum):
 def create_inventory(inventory_path, host, username, password, group):
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
-        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2}\n' \
+        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2} ' \
+             'ansible_python_interpreter="/usr/bin/env python"\n' \
             .format(host, username, password)
         f.write(h1)
 

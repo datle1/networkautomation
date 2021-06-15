@@ -18,5 +18,8 @@ setup(
     install_requires=[
         'ansible',
         'psutil',
+        'pyangbind',
+        'ntc-ansible',
+        'napalm-ansible',
     ]
 )

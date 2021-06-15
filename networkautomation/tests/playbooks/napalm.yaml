@@ -1,0 +1,21 @@
+---
+- name: Test job apply
+  gather_facts: false
+  hosts: all
+  connection: local
+  tasks:
+    - name: napalm cli "{{ vlan_config.name }}"
+      napalm_cli:
+        hostname: admin
+        username: admin
+        dev_os: mock
+        password: admin
+        optional_args:
+          profile: [eos]
+        args:
+          commands:
+            - show version
+      register: result
+    - assert:
+        that:
+          - result.cli_results is search("Arista")
