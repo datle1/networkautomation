@@ -9,9 +9,68 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
+from ansible.plugins.callback import CallbackBase
 
 INVENTORY_FILE = "inventory"
 ANSIBLE_CONFIG_FILE = "ansible.cfg"
+
+
+class PlayBookResultsCollector(CallbackBase):
+    CALLBACK_VERSION = 2.0
+
+    def __init__(self, *args, **kwargs):
+        super(PlayBookResultsCollector, self).__init__(*args, **kwargs)
+        self.task_ok = {}
+        self.task_skipped = {}
+        self.task_failed = {}
+        self.task_status = {}
+        self.task_unreachable = {}
+        self.status_no_hosts = False
+
+    def v2_runner_on_ok(self, result, *args, **kwargs):
+        self.task_ok[result._host.get_name()] = result
+
+    def v2_runner_on_failed(self, result, *args, **kwargs):
+        self.task_failed[result._host.get_name()] = result
+
+    def v2_runner_on_unreachable(self, result):
+        self.task_unreachable[result._host.get_name()] = result
+
+    def v2_runner_on_skipped(self, result):
+        self.task_skipped[result._host.get_name()] = result
+
+    def v2_playbook_on_no_hosts_matched(self):
+        self.status_no_hosts = True
+
+    def v2_playbook_on_stats(self, stats):
+
+        hosts = sorted(stats.processed.keys())
+        for h in hosts:
+            t = stats.summarize(h)
+            self.task_status[h] = {
+                "success": t['ok'],
+                "changed": t['changed'],
+                "unreachable": t['unreachable'],
+                "skipped": t['skipped'],
+                "failed": t['failures']
+            }
+
+    def getPlaybookResult(self):
+        if self.status_no_hosts:
+            results = {'msg': "Could not match supplied host pattern", 'flag': False, 'executed': False}
+            return results
+        results_info = {'skipped': {}, 'failed': {}, 'success': {}, "status": {}, 'unreachable': {}, "changed": {}}
+        for host, result in self.task_ok.items():
+            results_info['success'][host] = result._result
+        for host, result in self.task_failed.items():
+            results_info['failed'][host] = result
+        for host, result in self.task_status.items():
+            results_info['status'][host] = result
+        for host, result in self.task_skipped.items():
+            results_info['skipped'][host] = result
+        for host, result in self.task_unreachable.items():
+            results_info['unreachable'][host] = result
+        return results_info
 
 
 class PlaybookResult(Enum):
@@ -66,10 +125,26 @@ def execute_playbook(playbook, host, user, password, extra_vars):
                                 loader=loader,
                                 passwords=None)
     try:
+        results_callback = PlayBookResultsCollector()
+        executor._tqm._stdout_callback = results_callback
         results = executor.run()
+        playbook_result = results_callback.getPlaybookResult()
         msg = PlaybookResult(results)
         if msg == PlaybookResult.RUN_OK:
             return True, None
+        elif msg == PlaybookResult.RUN_FAILED_HOSTS:
+            reasons = []
+            failed_result = playbook_result["failed"][host]._result
+            if failed_result.get("results") is not None:
+                # when multi tasks failed
+                task_results = playbook_result["failed"][host]._result.get("results")
+                for task_result in task_results:
+                    reasons.append(task_result["msg"])
+                return False, reasons
+            else:
+                # When only one task failed
+                reasons.append(failed_result.get("msg"))
+                return False, reasons
         else:
             return False, msg
     except AnsibleError as err:

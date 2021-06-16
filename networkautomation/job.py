@@ -108,7 +108,7 @@ class Job:
             else:
                 # Task is done but fail
                 print("Task failed: %s" % res)
-                self.error = self.error + res + "| "
+                self.error = self.error + res
         self.recover(self.state, timeout)
         return False
 
