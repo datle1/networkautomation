@@ -10,7 +10,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 
-INVENTORY_FILE = "/tmp/inventory"
+INVENTORY_FILE = "inventory"
 ANSIBLE_CONFIG_FILE = "ansible.cfg"
 
 

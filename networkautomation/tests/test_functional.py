@@ -1,9 +1,17 @@
+import os
 from unittest import TestCase
-
 from networkautomation import common, job_manager, network_function
+from networkautomation.drivers.ansible.libansible import ANSIBLE_CONFIG_FILE, \
+    INVENTORY_FILE
 
 
 class FunctionalTest(TestCase):
+    def tearDown(self):
+        if os.path.exists(ANSIBLE_CONFIG_FILE):
+            os.remove(ANSIBLE_CONFIG_FILE)
+        if os.path.exists(INVENTORY_FILE):
+            os.remove(INVENTORY_FILE)
+
     def test_execute_ansible_job(self):
         playbooks = {
             'APPLY': 'playbooks/apply.yaml',
