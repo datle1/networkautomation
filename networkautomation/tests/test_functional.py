@@ -154,3 +154,32 @@ class Test(TestCase):
             print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((result, error), (False, 'Task APPLY got timeout| '
                                                   'Task ROLLBACK got timeout| '))
+
+    def test_execute_ansible_job_module_failed(self):
+        playbooks = {
+            'APPLY': 'playbooks/test-create-file.yaml',
+        }
+        extra_vars = {'file_name': '/root/foo'}
+        target = network_function.NetworkFunction('vloadbalancer',
+                                                  'openstack',
+                                                  'octavia',
+                                                  '2.0',
+                                                  {'username': 'dat',
+                                                   'password': 'dat'},
+                                                  '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+                                             target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks,
+                                             extra_vars=extra_vars,
+                                             timeout=180)
+        if result:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        file_name = extra_vars.get("file_name")
+        self.assertEqual(
+            (result, error),
+            (False, str([f"Error, could not touch target: [Errno 13] Permission denied: '{file_name}'"])
+        )

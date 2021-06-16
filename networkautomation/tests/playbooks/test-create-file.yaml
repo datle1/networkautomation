@@ -1,0 +1,10 @@
+---
+- name: Test create file
+  gather_facts: false
+  hosts: all
+  connection: local
+  tasks:
+    - name: Touch a file "{{ file_name }}"
+      file:
+        path: "{{ file_name }}"
+        state: touch
