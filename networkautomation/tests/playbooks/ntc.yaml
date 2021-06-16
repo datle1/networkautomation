@@ -1,0 +1,22 @@
+---
+- name: Test job apply
+  gather_facts: false
+  hosts: all
+  connection: local
+  tasks:
+    - shell: "python -m pip show ntc-templates | grep Location | cut -d ' ' -f2"
+      register: module_path
+    - name: ntc cli "{{ vlan_config.name }}"
+      ntc_show_command:
+        connection: offline
+        file: cli.1.show_version.0
+        platform: arista_eos_eapi
+        command: "show version"
+        template_dir: "{{ module_path.stdout }}/ntc_templates/templates" # Specifies where to search templates
+        host: localhost
+        username: admin
+        password: admin
+      register: result
+    - assert:
+        that:
+          - result.response[0].image == '4.15.2.1F'

@@ -179,3 +179,28 @@ class FunctionalTest(TestCase):
         else:
             print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((result, error), (True, None))
+
+    def test_execute_ansible_ntc(self):
+        playbooks = {
+            'APPLY': 'playbooks/ntc.yaml',
+        }
+        extra_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
+        target = network_function.NetworkFunction('switch',
+                                                  'arista',
+                                                  'eos',
+                                                  '4.0',
+                                                  {'username': 'admin',
+                                                   'password': 'admin'},
+                                                  '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+                                             target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks,
+                                             element='vlan',
+                                             extra_vars=extra_vars)
+        if result:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((result, error), (True, None))

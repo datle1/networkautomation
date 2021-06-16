@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='networkautomation',
-    version='0.1',
+    version='0.2',
     packages=find_packages(
         where='.',
         include=['networkautomation*'],
@@ -19,7 +19,7 @@ setup(
         'ansible',
         'psutil',
         'pyangbind',
-        'ntc-ansible',
         'napalm-ansible',
+        'ntc-ansible',
     ]
 )

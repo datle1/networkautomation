@@ -1,5 +1,7 @@
+import os
 from enum import Enum
 
+import napalm_ansible
 from ansible import context
 from ansible.errors import AnsibleError
 from ansible.module_utils.common.collections import ImmutableDict
@@ -9,6 +11,7 @@ from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 
 INVENTORY_FILE = "/tmp/inventory"
+ANSIBLE_CONFIG_FILE = "ansible.cfg"
 
 
 class PlaybookResult(Enum):
@@ -18,6 +21,20 @@ class PlaybookResult(Enum):
     RUN_UNREACHABLE_HOSTS = 4
     RUN_FAILED_BREAK_PLAY = 8
     RUN_UNKNOWN_ERROR = 255
+
+
+def create_ansible_cfg(ansible_conf_file):
+    if not os.path.exists(ansible_conf_file):
+        napalm_module_dir = "{}".format(os.path.dirname(
+            napalm_ansible.__file__))
+        with open(ansible_conf_file, 'w') as f:
+            f.write('[defaults]\n'
+                    'host_key_checking=False\n'
+                    'log_path=/var/log/ansible.log\n'
+                    'ansible_python_interpreter=\"/usr/bin/env python\"\n'
+                    'action_plugins={}/plugins/action\n'
+                    'library={}/modules\n'
+                    .format(napalm_module_dir, napalm_module_dir))
 
 
 def create_inventory(inventory_path, host, username, password, group):
@@ -36,6 +53,7 @@ def execute_playbook(playbook, host, user, password, extra_vars):
                                     module_path=None, verbosity=True,
                                     check=False, start_at_task=None,
                                     forks=1)
+    create_ansible_cfg(ANSIBLE_CONFIG_FILE)
     create_inventory(INVENTORY_FILE, host, user, password, 'all')
     inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
