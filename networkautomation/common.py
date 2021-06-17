@@ -11,8 +11,8 @@ class JobState(Enum):
 
 
 class JobType(Enum):
-    PROVISIONING = 'provisioning'
-    CONFIGURATION = 'configuration'
+    USE_TEMPLATE = 'Template'
+    USE_ACTION = 'Action'
 
 
 class DriverType(Enum):

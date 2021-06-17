@@ -985,7 +985,4 @@ module openconfig-vlan {
   // rpc statements
 
   // notification statements
-  container vlan-config {
-    uses vlan-config;
-  }
 }

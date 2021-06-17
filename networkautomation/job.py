@@ -19,10 +19,10 @@ def kill(pid):
         print('Killed process maybe exited: ' + str(ex))
 
 
-def run_single_process(driver, state, target, templates, extra_vars,
+def run_single_process(driver, state, target, templates, input_vars,
                        child_conn):
     try:
-        error = driver.execute(state, target, templates, extra_vars)
+        error = driver.execute(state, target, templates, input_vars)
         if error:
             child_conn.send(str(error))
         else:
@@ -38,6 +38,7 @@ def run_single_process(driver, state, target, templates, extra_vars,
 class TaskResult:
     TASK_OK = 'OK'
     TASK_TIMEOUT = 'Timeout'
+    TASK_DRIVER_NOT_FOUND = 'Driver is not found'
 
     def __init__(self, name, err):
         self.name = name
@@ -50,7 +51,7 @@ class TaskResult:
 class Job:
     def __init__(self, job_type: JobType, target: NetworkFunction,
                  driver_type: DriverType = None, templates=None, job_id=None,
-                 element=None, action: ActionType = None, extra_vars=None):
+                 action: ActionType = None,  element=None, input_vars=None):
         self.id = job_id or utils.gen_uuid()
         self.job_type = job_type
         self.target = target
@@ -61,21 +62,19 @@ class Job:
         self.element = element
         self.action = action
         self.driver = None
-        self.vars = extra_vars
+        self.vars = input_vars
         self.pid = None
-        if element:
-            data_model.DataModel.validate_data(extra_vars, element)
-        if driver_type:
+
+        if self.vars:
+            data_model.DataModel.validate_data(self.vars)
+        if self.driver_type:
             self.driver = driver_manager.get_driver_from_name(
-                driver_type.value, self.target)
+                self.driver_type.value, self.target)
 
     def get_driver(self, state):
-        driver = self.driver
-        if not driver:
-            driver = driver_manager.get_driver_from_state(self.element,
-                                                          state.value,
-                                                          self.target)
-        return driver
+        return self.driver or \
+               driver_manager.get_driver_from_state(self.element,
+                   state.value, self.target)
 
     def execute(self, timeout):
         if self.run_task(JobState.BACKUP, timeout) \
@@ -94,8 +93,9 @@ class Job:
         self.state = state
         driver = self.get_driver(self.state)
         if not driver:
-            print("Bypass task %s" % self.state)
-            return True
+            self.error.append(TaskResult(self.state.value,
+                TaskResult.TASK_DRIVER_NOT_FOUND))
+            return False
         parent_conn, child_conn = multiprocessing.Pipe()
         p = multiprocessing.Process(target=run_single_process,
                                     args=(driver, self.state.value,

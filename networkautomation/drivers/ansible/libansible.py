@@ -9,8 +9,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from ansible.plugins.callback import CallbackBase
-from networkautomation.drivers.ansible.ansible_config import ANSIBLE_CONFIG_FILE, \
-    INVENTORY_FILE
+from networkautomation.drivers.ansible.ansible_config import \
+    ANSIBLE_CONFIG_FILE, INVENTORY_FILE
 
 
 def create_ansible_cfg(ansible_conf_file):
@@ -103,7 +103,7 @@ def create_inventory(inventory_path, host, username, password, group):
         f.write(h1)
 
 
-def execute_playbook(playbook, host, user, password, extra_vars):
+def execute_playbook(playbook, host, user, password, input_vars):
     create_ansible_cfg(ANSIBLE_CONFIG_FILE)
     create_inventory(INVENTORY_FILE, host, user, password, 'all')
     loader = DataLoader()
@@ -114,8 +114,8 @@ def execute_playbook(playbook, host, user, password, extra_vars):
                                     forks=1)
     inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
-    if extra_vars:
-        variable_manager.extra_vars.update(extra_vars)
+    if input_vars:
+        variable_manager.extra_vars.update(input_vars)
 
     executor = PlaybookExecutor(playbooks=[playbook],
                                 inventory=inventory,

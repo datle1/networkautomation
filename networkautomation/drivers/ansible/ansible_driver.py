@@ -11,7 +11,7 @@ class AnsibleDriver(DriverBase):
                        'ssh-user': nf.credential['username'],
                        'ssh-pass': nf.credential['password']}
 
-    def execute(self, event, target, templates, extra_vars):
+    def execute(self, event, target, templates, input_vars):
         print('===========================================\n'
               'Ansible run event:', event)
         playbook = templates.get(event)
@@ -22,7 +22,7 @@ class AnsibleDriver(DriverBase):
                 config['ssh-host'],
                 config['ssh-user'],
                 config['ssh-pass'],
-                extra_vars
+                input_vars
             )
             return error
         else:

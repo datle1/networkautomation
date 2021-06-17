@@ -19,7 +19,7 @@ class FunctionalTest(TestCase):
             # 'ROLLBACK' : 'playbooks/rollback.yaml',
             # 'VERIFY' : 'playbooks/verify.yaml'
         }
-        extra_vars = {'loadbalancer': {'name': 'vLB'}}
+        input_vars = {'loadbalancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -28,12 +28,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             element='loadbalancer',
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=180)
         if result:
             print('Ansible job is successful')
@@ -50,22 +49,24 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '10.10.10.11')
         job_mgmt = job_manager.JobManager()
-        extra_vars = {'vlan-config': {'vlan-id': 4094, 'name': 'vlanTest'}}
-        result, error = job_mgmt.execute_job(common.JobType.CONFIGURATION,
-                                             target, element='vlan',
-                                             extra_vars=extra_vars,
-                                             action=common.ActionType.CREATE)
+        input_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
+        result, error = job_mgmt.execute_job(common.JobType.USE_ACTION,
+                                             target,
+                                             action=common.ActionType.CREATE,
+                                             element='vlan_config',
+                                             input_vars=input_vars)
         if result:
             print('Rest job is successful')
         else:
             print('Rest job is failed. Reason: ' + error)
-        self.assertEqual((True, None), (result, error))
+        self.assertEqual((False, '[Task BACKUP: Driver is not found]'),
+                        (result, error))
 
     def test_execute_ansible_job_timeout_backup(self):
         playbooks = {
             'BACKUP': 'playbooks/timeout.yaml'
         }
-        extra_vars = {'vlan_id': 123}
+        input_vars = {'vlan_config': {'vlan_id': 123}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -74,11 +75,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=1)
         if result:
             print('Ansible job is successful')
@@ -91,7 +92,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'APPLY': 'playbooks/timeout.yaml'
         }
-        extra_vars = {'vlan_id': 123}
+        input_vars = {'vlan_config': {'vlan_id': 123}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -100,11 +101,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=1)
         if result:
             print('Ansible job is successful')
@@ -116,7 +117,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'VERIFY': 'playbooks/timeout.yaml'
         }
-        extra_vars = {'vlan_id': 123}
+        input_vars = {'vlan_config': {'vlan_id': 123}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -125,11 +126,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=1)
         if result:
             print('Ansible job is successful')
@@ -142,7 +143,7 @@ class FunctionalTest(TestCase):
             'APPLY': 'playbooks/timeout.yaml',
             'ROLLBACK': 'playbooks/timeout.yaml'
         }
-        extra_vars = {'vlan_id': 123}
+        input_vars = {'vlan_config': {'vlan_id': 123}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -151,11 +152,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=1)
         if result:
             print('Ansible job is successful')
@@ -168,7 +169,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'APPLY': 'playbooks/napalm.yaml',
         }
-        extra_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
+        input_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
         target = network_function.NetworkFunction('switch',
                                                   'arista',
                                                   'eos',
@@ -177,12 +178,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             element='vlan',
-                                             extra_vars=extra_vars)
+                                             input_vars=input_vars)
         if result:
             print('Ansible job is successful')
         else:
@@ -193,7 +193,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'APPLY': 'playbooks/ntc.yaml',
         }
-        extra_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
+        input_vars = {'vlan_config': {'vlan-id': 4094, 'name': 'vlanTest'}}
         target = network_function.NetworkFunction('switch',
                                                   'arista',
                                                   'eos',
@@ -202,12 +202,11 @@ class FunctionalTest(TestCase):
                                                    'password': 'admin'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             element='vlan',
-                                             extra_vars=extra_vars)
+                                             input_vars=input_vars)
         if result:
             print('Ansible job is successful')
         else:
@@ -218,7 +217,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'APPLY': 'playbooks/error_open_file.yaml',
         }
-        extra_vars = {'loadbalancer': {'name': 'vLB'}}
+        input_vars = {'loadbalancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -227,17 +226,17 @@ class FunctionalTest(TestCase):
                                                    'password': 'dat'},
                                                   '127.0.0.1')
         job_mgmt = job_manager.JobManager()
-        result, error = job_mgmt.execute_job(common.JobType.PROVISIONING,
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
                                              target,
                                              common.DriverType.ANSIBLE,
                                              templates=playbooks,
-                                             extra_vars=extra_vars,
+                                             input_vars=input_vars,
                                              timeout=180)
         if result:
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        file_name = str.encode(extra_vars.get("loadbalancer").get("name"))
+        file_name = str.encode(input_vars.get("loadbalancer").get("name"))
         err = "[Task APPLY: ['could not locate file in lookup: vLB']]"\
             .format(file_name)
         self.assertEqual((False, err), (result, error))

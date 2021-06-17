@@ -3,28 +3,39 @@ import time
 from networkautomation.common import JobState
 from networkautomation import job
 
-
+"""Network Automation Framework
+   Exposed module to executing network automation jobs.
+    - Option 1: Executing scenario in template 
+        job_manager.execute_job(USE_TEMPLATE, target,
+                                driver_type, templates[BACKUP, APPLY, VERIFY, ROLLBACK])
+    - Option 2: Executing action with specified element
+        job_manager.execute_job(USE_ACTION, target,
+                                action, element)
+"""
 class JobManager:
     JOB_POOL = {}
     DEFAULT_JOB_TIMEOUT = 3 * 60  # seconds
 
-    def execute_job(self, job_type, target, driver_type=None, templates=None,
-                    element=None, action=None, extra_vars=None,
-                    timeout=DEFAULT_JOB_TIMEOUT):
+    def execute_job(self, job_type, target,
+                    driver_type=None, templates=None,
+                    action=None, element=None,
+                    input_vars=None, timeout=DEFAULT_JOB_TIMEOUT):
         my_job = job.Job(job_type, target, driver_type=driver_type,
-                         templates=templates, element=element, action=action,
-                         extra_vars=extra_vars)
+                         templates=templates, action=action, element=element,
+                         input_vars=input_vars)
         if my_job:
             self.JOB_POOL[my_job.id] = my_job
             return my_job.execute(timeout)
         else:
             return False, 'Error: can not init job'
 
-    def register_job(self, job_type, target, driver_type=None, templates=None,
-                     element=None, action=None, extra_vars=None):
+    def register_job(self, job_type, target,
+                     driver_type=None, templates=None,
+                     action=None, element=None,
+                     input_vars=None):
         my_job = job.Job(job_type, target, driver_type=driver_type,
-                         templates=templates, element=element, action=action,
-                         extra_vars=extra_vars)
+                         templates=templates, action=action, element=element,
+                         input_vars=input_vars)
         if my_job:
             self.JOB_POOL[my_job.id] = my_job
             return my_job.id
