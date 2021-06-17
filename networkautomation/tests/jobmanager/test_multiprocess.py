@@ -1,7 +1,5 @@
-import ctypes
 import time
 from multiprocessing import Process
-from multiprocess.managers import Value
 
 
 def f(name):

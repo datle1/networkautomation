@@ -1,7 +1,8 @@
+import unittest
 from asyncio import CancelledError
-from time import sleep
+from unittest import TestCase
 
-import async_timeout
+
 import asyncio
 
 async def wait_time(time):
@@ -13,7 +14,7 @@ async def wait_time(time):
 
 async def test_timeout():
     try:
-        async with async_timeout.timeout(3) as to:
+        async with asyncio.timeout(3) as to:
             await wait_time(6)
     except TimeoutError:
         print("oops took longer than 3s!")
@@ -21,7 +22,9 @@ async def test_timeout():
         print(to.expired)
 
 
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(test_timeout())
-    loop.close()
+class TimeoutTest(TestCase):
+    @unittest.skip
+    def test_timeout(self):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(test_timeout())
+        loop.close()
