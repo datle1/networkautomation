@@ -10,8 +10,6 @@ from networkautomation import data_model
 from networkautomation.common import *
 from networkautomation.network_function import NetworkFunction
 
-TASK_OK = 'OK'
-
 
 def kill(pid):
     try:
@@ -28,13 +26,25 @@ def run_single_process(driver, state, target, templates, extra_vars,
         if error:
             child_conn.send(str(error))
         else:
-            child_conn.send(TASK_OK)
+            child_conn.send(TaskResult.TASK_OK)
         child_conn.close()
     except Exception as err:
         print("Task raised: %s" % err)
         print(traceback.format_exc())
         child_conn.send(str(err))
         child_conn.close()
+
+
+class TaskResult:
+    TASK_OK = 'OK'
+    TASK_TIMEOUT = 'Timeout'
+
+    def __init__(self, name, err):
+        self.name = name
+        self.err = err
+
+    def __repr__(self) -> str:
+        return 'Task ' + self.name + ': ' + self.err
 
 
 class Job:
@@ -47,7 +57,7 @@ class Job:
         self.templates = templates
         self.state = JobState.INIT
         self.driver_type = driver_type
-        self.error = ''
+        self.error = []
         self.element = element
         self.action = action
         self.driver = None
@@ -73,7 +83,7 @@ class Job:
                 and self.run_task(JobState.VERIFY, timeout):
             self.state = JobState.FINISHED
             return True, None
-        return False, self.error
+        return False, str(self.error)
 
     def recover(self, state, timeout):
         print('Start to recover')
@@ -97,18 +107,18 @@ class Job:
         if p.exitcode is None:
             # Timeout then, terminate process
             print("Task is timeout after " + str(timeout))
-            self.error = self.error + "Task " + self.state.value \
-                                    + " got timeout| "
+            self.error.append(TaskResult(self.state.value,
+                              TaskResult.TASK_TIMEOUT))
             self.terminate()
         else:
             res = parent_conn.recv()
-            if res == TASK_OK:
+            if res == TaskResult.TASK_OK:
                 # Task is done and successful
                 return True
             else:
                 # Task is done but fail
                 print("Task failed: %s" % res)
-                self.error = self.error + res
+                self.error.append(TaskResult(self.state.value, res))
         self.recover(self.state, timeout)
         return False
 

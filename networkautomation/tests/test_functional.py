@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 from networkautomation import common, job_manager, network_function
-from networkautomation.drivers.ansible.libansible import ANSIBLE_CONFIG_FILE, \
-    INVENTORY_FILE
+from networkautomation.drivers.ansible.ansible_config import \
+    ANSIBLE_CONFIG_FILE, INVENTORY_FILE
 
 
 class FunctionalTest(TestCase):
@@ -39,7 +39,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (True, None))
+        self.assertEqual((True, None), (result, error))
 
     def test_execute_rest_job(self):
         target = network_function.NetworkFunction('firewall',
@@ -59,7 +59,7 @@ class FunctionalTest(TestCase):
             print('Rest job is successful')
         else:
             print('Rest job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (True, None))
+        self.assertEqual((True, None), (result, error))
 
     def test_execute_ansible_job_timeout_backup(self):
         playbooks = {
@@ -84,7 +84,8 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (False, 'Task BACKUP got timeout| '))
+        self.assertEqual((False, '[Task BACKUP: Timeout]'),
+                        (result, error))
 
     def test_execute_ansible_job_timeout_apply(self):
         playbooks = {
@@ -109,7 +110,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (False, 'Task APPLY got timeout| '))
+        self.assertEqual((False, '[Task APPLY: Timeout]'), (result, error))
 
     def test_execute_ansible_job_timeout_verify(self):
         playbooks = {
@@ -134,7 +135,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (False, 'Task VERIFY got timeout| '))
+        self.assertEqual((False, '[Task VERIFY: Timeout]'), (result, error))
 
     def test_execute_ansible_job_timeout_rollback(self):
         playbooks = {
@@ -160,8 +161,8 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (False, 'Task APPLY got timeout| '
-                                                  'Task ROLLBACK got timeout| '))
+        self.assertEqual((False, '[Task APPLY: Timeout, '
+                                 'Task ROLLBACK: Timeout]'), (result, error))
 
     def test_execute_ansible_napalm(self):
         playbooks = {
@@ -186,7 +187,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (True, None))
+        self.assertEqual((True, None), (result, error))
 
     def test_execute_ansible_ntc(self):
         playbooks = {
@@ -211,13 +212,13 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((result, error), (True, None))
+        self.assertEqual((True, None), (result, error))
 
     def test_execute_ansible_job_module_failed(self):
         playbooks = {
-            'APPLY': 'playbooks/test-create-file.yaml',
+            'APPLY': 'playbooks/error_open_file.yaml',
         }
-        extra_vars = {'file_name': '/root/foo'}
+        extra_vars = {'loadbalancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -236,8 +237,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        file_name = extra_vars.get("file_name")
-        self.assertEqual(
-            (result, error),
-            (False, str([f"Error, could not touch target: [Errno 13] Permission denied: '{file_name}'"])
-        )
+        file_name = str.encode(extra_vars.get("loadbalancer").get("name"))
+        err = "[Task APPLY: ['could not locate file in lookup: vLB']]"\
+            .format(file_name)
+        self.assertEqual((False, err), (result, error))

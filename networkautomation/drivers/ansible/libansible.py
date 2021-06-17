@@ -1,6 +1,5 @@
 import os
 from enum import Enum
-
 import napalm_ansible
 from ansible import context
 from ansible.errors import AnsibleError
@@ -10,9 +9,22 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from ansible.plugins.callback import CallbackBase
+from networkautomation.drivers.ansible.ansible_config import ANSIBLE_CONFIG_FILE, \
+    INVENTORY_FILE
 
-INVENTORY_FILE = "inventory"
-ANSIBLE_CONFIG_FILE = "ansible.cfg"
+
+def create_ansible_cfg(ansible_conf_file):
+    if not os.path.exists(ansible_conf_file):
+        napalm_module_dir = "{}".format(os.path.dirname(
+            napalm_ansible.__file__))
+        with open(ansible_conf_file, 'w') as f:
+            f.write('[defaults]\n'
+                    'host_key_checking=False\n'
+                    'log_path=/var/log/ansible.log\n'
+                    'ansible_python_interpreter=\"/usr/bin/env python\"\n'
+                    'action_plugins={}/plugins/action\n'
+                    'library={}/modules\n'
+                    .format(napalm_module_dir, napalm_module_dir))
 
 
 class PlayBookResultsCollector(CallbackBase):
@@ -82,20 +94,6 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def create_ansible_cfg(ansible_conf_file):
-    if not os.path.exists(ansible_conf_file):
-        napalm_module_dir = "{}".format(os.path.dirname(
-            napalm_ansible.__file__))
-        with open(ansible_conf_file, 'w') as f:
-            f.write('[defaults]\n'
-                    'host_key_checking=False\n'
-                    'log_path=/var/log/ansible.log\n'
-                    'ansible_python_interpreter=\"/usr/bin/env python\"\n'
-                    'action_plugins={}/plugins/action\n'
-                    'library={}/modules\n'
-                    .format(napalm_module_dir, napalm_module_dir))
-
-
 def create_inventory(inventory_path, host, username, password, group):
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
@@ -106,14 +104,14 @@ def create_inventory(inventory_path, host, username, password, group):
 
 
 def execute_playbook(playbook, host, user, password, extra_vars):
+    create_ansible_cfg(ANSIBLE_CONFIG_FILE)
+    create_inventory(INVENTORY_FILE, host, user, password, 'all')
     loader = DataLoader()
     context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
                                     module_path=None, verbosity=True,
                                     check=False, start_at_task=None,
                                     forks=1)
-    create_ansible_cfg(ANSIBLE_CONFIG_FILE)
-    create_inventory(INVENTORY_FILE, host, user, password, 'all')
     inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
     if extra_vars:
@@ -143,7 +141,7 @@ def execute_playbook(playbook, host, user, password, extra_vars):
                 return False, reasons
             else:
                 # When only one task failed
-                reasons.append(failed_result.get("msg"))
+                reasons.append(failed_result["msg"])
                 return False, reasons
         else:
             return False, msg
