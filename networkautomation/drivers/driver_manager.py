@@ -1,5 +1,5 @@
 from networkautomation.drivers.driver_factory import DriverFactory
-# Import all driver to load decorator
+# Import all drivers to load decorator
 from networkautomation.drivers.ansible import ansible_driver
 from networkautomation.drivers.rest import rest_driver
 

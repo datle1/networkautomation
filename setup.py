@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-
+from networkautomation.drivers.ansible.libansible import create_ansible_cfg
 from setuptools import setup
 from setuptools import find_packages
 from setuptools.command.install import install
@@ -12,10 +12,13 @@ class NetworkAutomationInstaller(install):
     model_file = "/models/network-models.yang"
     pymodel_file = "/networkautomation/pymodels/network_models.py"
 
+    def pip_install(self, package):
+        subprocess.call([sys.executable, "-m", "pip", "install", package])
+
     def run(self):
         working_dir = os.getcwd()
         print("Working dir: {} ".format(working_dir))
-        subprocess.call([sys.executable, "-m", "pip", "install", "pyangbind"])
+        self.pip_install("pyangbind")
         import pyangbind
         pyangbind_path = os.path.dirname(pyangbind.__file__) + '/plugin'
         protoc_command = ["pyang",
@@ -30,6 +33,7 @@ class NetworkAutomationInstaller(install):
                         working_dir + self.model_file]
         if subprocess.call(protoc_command) != 0:
             sys.exit(-1)
+        create_ansible_cfg()
         install.run(self)
 
 
@@ -52,6 +56,7 @@ setup(
         'ansible',
         'psutil',
         'napalm-ansible',
-        'ntc-ansible',
+        'ntc-templates',
+        'ntc-ansible-plugin',
     ]
 )

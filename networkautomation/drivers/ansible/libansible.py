@@ -1,6 +1,5 @@
 import os
 from enum import Enum
-import napalm_ansible
 from ansible import context
 from ansible.errors import AnsibleError
 from ansible.module_utils.common.collections import ImmutableDict
@@ -9,22 +8,29 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from ansible.plugins.callback import CallbackBase
-from networkautomation.drivers.ansible.ansible_config import \
-    ANSIBLE_CONFIG_FILE, INVENTORY_FILE
 
 
-def create_ansible_cfg(ansible_conf_file):
-    if not os.path.exists(ansible_conf_file):
+INVENTORY_FILE = "inventory"
+ANSIBLE_CONFIG_FILE = ".ansible.cfg"
+
+def create_ansible_cfg():
+    file_path = os.environ['HOME'] + "/" + ANSIBLE_CONFIG_FILE
+    if not os.path.exists(file_path):
+        import napalm_ansible
+        import ntc_ansible_plugin
         napalm_module_dir = "{}".format(os.path.dirname(
             napalm_ansible.__file__))
-        with open(ansible_conf_file, 'w') as f:
+        ntc_ansible_dir = "{}".format(os.path.dirname(
+            ntc_ansible_plugin.__file__))
+        with open(file_path, 'w') as f:
             f.write('[defaults]\n'
                     'host_key_checking=False\n'
                     'log_path=/var/log/ansible.log\n'
                     'ansible_python_interpreter=\"/usr/bin/env python\"\n'
                     'action_plugins={}/plugins/action\n'
-                    'library={}/modules\n'
-                    .format(napalm_module_dir, napalm_module_dir))
+                    'library={}/modules:{}\n'
+                    .format(napalm_module_dir, napalm_module_dir,
+                            ntc_ansible_dir))
 
 
 class PlayBookResultsCollector(CallbackBase):
@@ -103,8 +109,12 @@ def create_inventory(inventory_path, host, username, password, group):
         f.write(h1)
 
 
+def delete_inventory(inventory_path):
+    if os.path.exists(inventory_path):
+        os.remove(inventory_path)
+
+
 def execute_playbook(playbook, host, user, password, input_vars):
-    create_ansible_cfg(ANSIBLE_CONFIG_FILE)
     create_inventory(INVENTORY_FILE, host, user, password, 'all')
     loader = DataLoader()
     context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False,
@@ -150,3 +160,5 @@ def execute_playbook(playbook, host, user, password, input_vars):
         executor._tqm.cleanup()
         loader.cleanup_all_tmp_files()
         return False, err.message
+    finally:
+        delete_inventory(INVENTORY_FILE)
