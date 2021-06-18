@@ -15,22 +15,21 @@ ANSIBLE_CONFIG_FILE = ".ansible.cfg"
 
 def create_ansible_cfg():
     file_path = os.environ['HOME'] + "/" + ANSIBLE_CONFIG_FILE
-    if not os.path.exists(file_path):
-        import napalm_ansible
-        import ntc_ansible_plugin
-        napalm_module_dir = "{}".format(os.path.dirname(
-            napalm_ansible.__file__))
-        ntc_ansible_dir = "{}".format(os.path.dirname(
-            ntc_ansible_plugin.__file__))
-        with open(file_path, 'w') as f:
-            f.write('[defaults]\n'
-                    'host_key_checking=False\n'
-                    'log_path=/var/log/ansible.log\n'
-                    'ansible_python_interpreter=\"/usr/bin/env python\"\n'
-                    'action_plugins={}/plugins/action\n'
-                    'library={}/modules:{}\n'
-                    .format(napalm_module_dir, napalm_module_dir,
-                            ntc_ansible_dir))
+    import napalm_ansible
+    import ntc_ansible_plugin
+    napalm_module_dir = "{}".format(os.path.dirname(
+        napalm_ansible.__file__))
+    ntc_ansible_dir = "{}".format(os.path.dirname(
+        ntc_ansible_plugin.__file__))
+    with open(file_path, 'w') as f:
+        f.write('[defaults]\n'
+                'host_key_checking=False\n'
+                'log_path=/var/log/ansible.log\n'
+                'ansible_python_interpreter=\"/usr/bin/env python\"\n'
+                'action_plugins={}/plugins/action\n'
+                'library={}/modules:{}\n'
+                .format(napalm_module_dir, napalm_module_dir,
+                        ntc_ansible_dir))
 
 
 class PlayBookResultsCollector(CallbackBase):

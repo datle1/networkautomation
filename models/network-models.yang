@@ -3,13 +3,11 @@ module network-models {
     namespace "networkautomation:yang:network-functions";
     prefix "network-functions";
 
-    import loadbalancer { prefix "load-balancer"; }
+    import load-balancer { prefix "load-balancer"; }
     import openconfig-vlan { prefix "oc-vlan"; }
     import openconfig-interfaces { prefix "oc-if"; }
 
-    container loadbalancer {
-        uses load-balancer:loadbalancer-attributes;
-    }
+    uses load-balancer:extended-load-balancer;
 
     container vlan-config {
         uses oc-vlan:vlan-config;

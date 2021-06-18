@@ -11,7 +11,7 @@ class FunctionalTest(TestCase):
             # 'ROLLBACK' : 'playbooks/rollback.yaml',
             # 'VERIFY' : 'playbooks/verify.yaml'
         }
-        input_vars = {'loadbalancer': {'name': 'vLB'}}
+        input_vars = {'load_balancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -209,7 +209,7 @@ class FunctionalTest(TestCase):
         playbooks = {
             'APPLY': 'playbooks/error_open_file.yaml',
         }
-        input_vars = {'loadbalancer': {'name': 'vLB'}}
+        input_vars = {'load_balancer': {'name': 'vLB'}}
         target = network_function.NetworkFunction('vloadbalancer',
                                                   'openstack',
                                                   'octavia',
@@ -228,7 +228,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        file_name = str.encode(input_vars.get("loadbalancer").get("name"))
+        file_name = str.encode(input_vars.get("load_balancer").get("name"))
         err = "[Task APPLY: ['could not locate file in lookup: vLB']]"\
             .format(file_name)
         self.assertEqual((False, err), (result, error))

@@ -14,5 +14,5 @@ class TestDataModel(TestCase):
         data_model.DataModel.validate_data(data)
 
     def test_validate_loadbalancer(self):
-        data = {'loadbalancer': {'name': 'vLB'}}
+        data = {'load_balancer': {'name': 'vLB'}}
         data_model.DataModel.validate_data(data)

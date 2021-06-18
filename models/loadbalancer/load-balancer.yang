@@ -1,4 +1,21 @@
-module loadbalancer {
+/*
+  Copyright 2021 ManhVu
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+module load-balancer {
     yang-version 1.1;
     namespace "urn:etsi:osm:yang:augments:load-balancer";
     prefix "load-balancer";
@@ -19,7 +36,7 @@ module loadbalancer {
     grouping loadbalancer-attributes {
       description "Load balancer attributes.";
       uses admin-state-up;
-
+      
       leaf name {
         description
           "Name of the load balancer";
@@ -29,11 +46,11 @@ module loadbalancer {
       leaf provider {
         description
           "Provider name for the load balancer.";
+        mandatory true;
         type enumeration {
           enum "octavia";
           enum "a10";
         }
-        default "octavia";
       }
 
       leaf project-id {
@@ -56,7 +73,7 @@ module loadbalancer {
           leaf port-id {
             description
               "Providing a neutron port ID for the vip_port_id tells octavia to use this port for the VIP";
-            type string;
+            type string;    
           }
         }
         case subnet {
@@ -105,7 +122,7 @@ module loadbalancer {
         }
       }
       leaf connection-limit {
-        description
+        description 
           "Maximum connections this load balancer can have. Default is infinite.";
         type int32 {
           range -1..65535;
@@ -151,7 +168,7 @@ module loadbalancer {
         default "ROUND_ROBIN";
       }
       container session-persistence {
-        description
+        description 
           "The session persistence algorithm. This algorithm is a dictionary with type and cookie_name keys.";
         leaf cookie-name {
           type string;
@@ -184,7 +201,7 @@ module loadbalancer {
         type inet:ip-address;
       }
       leaf weight {
-        description
+        description 
           "Weight of member.";
         type uint16 {
           range 0..256;
@@ -215,12 +232,12 @@ module loadbalancer {
         mandatory true;
       }
       leaf delay {
-        description
+        description 
           "The interval, in seconds, between health checks.";
         type uint32;
       }
       leaf timeout {
-        description
+        description 
           "The time, in seconds, after which a health check times out.";
         type uint32;
       }
@@ -240,17 +257,17 @@ module loadbalancer {
       }
     }
     grouping extended-load-balancer {
-      list load-balancer {
-        key "name";
+      container load-balancer {
+        presence true;
         uses loadbalancer-attributes;
 
         list listener {
-          key "name";
+          key "name";            
           uses listener-attributes;
         }
 
         list pool {
-          key "name";
+          key "name";            
           uses pool-attributes;
           list member {
             key "name";
@@ -260,9 +277,6 @@ module loadbalancer {
             uses healthmonitor-attributes;
           }
         }
-      }
-    }
-    container loadbalancer {
-      uses loadbalancer-attributes;
+      }      
     }
 }
