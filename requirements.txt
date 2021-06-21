@@ -4,3 +4,4 @@ psutil >= 5.8.0
 napalm-ansible >= 1.1.0
 ntc-templates >= 2.0.0
 ntc-ansible-plugin >= 0.9.4
+pyangbind >= 0.8.1
