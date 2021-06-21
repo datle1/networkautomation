@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from networkautomation.drivers.ansible.libansible import create_ansible_cfg
 from setuptools import setup
 from setuptools import find_packages
 from setuptools.command.install import install
@@ -33,13 +32,19 @@ class NetworkAutomationInstaller(install):
                         working_dir + self.model_file]
         if subprocess.call(protoc_command) != 0:
             sys.exit(-1)
+        from networkautomation.drivers.ansible.libansible import create_ansible_cfg
         create_ansible_cfg()
         install.run(self)
 
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+print('Requirements: {}'.format(required))
+
 setup(
     name='networkautomation',
     version='0.2',
+    python_requires='>=3.6.0',
     packages=find_packages(
         where='.',
         include=['networkautomation*'],
@@ -52,11 +57,5 @@ setup(
     author_email='datlq3@viettel.com.vn',
     description='Network Automation Framework',
     cmdclass={'install': NetworkAutomationInstaller},
-    install_requires=[
-        'ansible',
-        'psutil',
-        'napalm-ansible',
-        'ntc-templates',
-        'ntc-ansible-plugin',
-    ]
+    install_requires=required
 )
