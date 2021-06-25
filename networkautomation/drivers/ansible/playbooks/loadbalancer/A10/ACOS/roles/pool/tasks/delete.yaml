@@ -1,0 +1,24 @@
+---
+- name: Remove backend servers from service group
+  include_role:
+    name: member
+    apply:
+      tags:
+        - loadbalancer
+        - pool
+        - member
+  loop: "{{ lb_pool.members }}"
+  loop_control:
+    loop_var: lb_member
+  tags:
+    - loadbalancer
+    - pool
+    - member
+
+- name: Delete service group
+  a10_slb_service_group:
+    name: "{{ lb_pool.name }}"
+    state: absent
+  tags:
+    - loadbalancer
+    - pool

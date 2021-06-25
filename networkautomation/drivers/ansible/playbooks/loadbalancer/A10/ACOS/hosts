@@ -1,0 +1,7 @@
+[vthunder]
+1.2.3.4
+
+[vthunder:vars]
+ansible_port=80
+ansible_username="tupm4"
+ansible_password="123"

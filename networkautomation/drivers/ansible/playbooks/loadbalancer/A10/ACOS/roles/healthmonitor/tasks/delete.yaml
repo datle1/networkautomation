@@ -1,0 +1,35 @@
+---
+- name: Delete health monitor method ICMP
+  a10_health_monitor_method_icmp:
+    monitor_name: "{{ health.name }}"
+    state: absent
+  when: health.protocol == "ICMP"
+
+- name: Delete health monitor method UDP
+  a10_health_monitor_method_udp:
+    monitor_name: "{{ health.name }}"
+    state: absent
+  when: health.protocol == "UDP"
+
+- name: Delete health monitor method TCP
+  a10_health_monitor_method_tcp:
+    monitor_name: "{{ health.name }}"
+    state: absent
+  when: health.protocol == "TCP"
+
+- name: Delete health monitor method HTTP
+  a10_health_monitor_method_http:
+    monitor_name: "{{ health.name }}"
+    state: absent
+  when: health.protocol == "HTTP"
+
+- name: Delete health monitor method HTTPS
+  a10_health_monitor_method_https:
+    monitor_name: "{{ health.name }}"
+    state: absent
+  when: health.protocol == "HTTPS"
+
+- name: Delete health monitor
+  a10_health_monitor:
+    name: "{{ health.name }}"
+    state: absent

@@ -1,0 +1,47 @@
+---
+- include_role:
+    name: listener
+    apply:
+      tags:
+        - loadbalancer
+        - listener
+  loop: "{{ loadbalancer.listeners }}"
+  loop_control:
+    loop_var: lb_listener
+  tags:
+    - loadbalancer
+    - listener
+
+- name: Delete virtual server
+  a10_slb_virtual_server:
+    name: "{{ loadbalancer.name }}"
+    state: absent
+  tags:
+    - loadbalancer
+
+- include_role:
+    name: pool
+    apply:
+      tags:
+        - loadbalancer
+        - pool
+  loop: "{{ loadbalancer.pools }}"
+  loop_control:
+    loop_var: lb_pool
+  tags:
+    - loadbalancer
+    - pool
+    - member
+
+- include_role:
+    name: healthmonitor
+    apply:
+      tags:
+        - loadbalancer
+        - healthmonitor
+  loop: "{{ loadbalancer.pools | map(attribute='healthmonitor') | list }}"
+  loop_control:
+    loop_var: health
+  tags:
+    - loadbalancer
+    - healthmonitor
