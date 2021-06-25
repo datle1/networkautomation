@@ -138,12 +138,16 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def create_inventory(inventory_path, host, username, password, group):
+def create_inventory(inventory_path, host, username, password, extra_config,
+                     group):
+    h1 = host + ' ansible_python_interpreter="/usr/bin/env python" '
+    if username and password:
+        h1 += 'ansible_ssh_user={1} ansible_ssh_pass={2} '\
+            .format(host, username, password)
+    if extra_config:
+        h1 += extra_config
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
-        h1 = '{0} ansible_ssh_user={1} ansible_ssh_pass={2} ' \
-             'ansible_python_interpreter="/usr/bin/env python"\n' \
-            .format(host, username, password)
         f.write(h1)
 
 
@@ -152,8 +156,9 @@ def delete_inventory(inventory_path):
         os.remove(inventory_path)
 
 
-def execute_playbook(playbook, host, user, password, input_vars):
-    create_inventory(INVENTORY_FILE, host, user, password, 'all')
+def execute_playbook(playbook, host, user, password, extra_config=None,
+                     input_vars=None):
+    create_inventory(INVENTORY_FILE, host, user, password, extra_config, 'all')
     loader = DataLoader()
     context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
