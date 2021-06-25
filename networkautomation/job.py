@@ -65,8 +65,8 @@ class Job:
         self.vars = input_vars
         self.pid = None
 
-        if self.vars:
-            data_model.DataModel.validate_data(self.vars)
+        # if self.vars:
+        #     data_model.DataModel.validate_data(self.vars)
         if self.driver_type:
             self.driver = driver_manager.get_driver_from_name(
                 self.driver_type.value, self.target)
