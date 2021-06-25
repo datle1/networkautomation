@@ -1,0 +1,12 @@
+---
+- name: Execute Test Suite
+  connection: local
+  hosts: 127.0.0.1
+  tasks:
+    - name: check active module
+      shell: 'ansible-galaxy collection list a10.acos_axapi'
+      register: res
+    - assert:
+        fail_msg: "Fail: {{ res }}"
+        that:
+          - res is search("Version")

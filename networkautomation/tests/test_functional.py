@@ -1,8 +1,13 @@
+import os
 from unittest import TestCase
 from networkautomation import common, job_manager, network_function
+from networkautomation.drivers.ansible.libansible import download_generate_ansible_cfg
 
 
 class FunctionalTest(TestCase):
+
+    def setUp(self):
+        download_generate_ansible_cfg()
 
     def test_execute_ansible_job(self):
         playbooks = {
@@ -232,3 +237,27 @@ class FunctionalTest(TestCase):
         err = "[Task APPLY: ['could not locate file in lookup: vLB']]"\
             .format(file_name)
         self.assertEqual((False, err), (result, error))
+
+    def test_execute_ansible_lb_a10(self):
+        playbooks = {
+            'APPLY': 'playbooks/a10_acos_axapi.yaml',
+        }
+        input_vars = {'load_balancer': {'name': 'a10'}}
+        target = network_function.NetworkFunction('loadbalancer',
+                                                    'a10',
+                                                    'acos',
+                                                    '4.0',
+                                                    {'username': 'admin',
+                                                     'password': 'admin'},
+                                                    '127.0.0.1')
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
+            target,
+            common.DriverType.ANSIBLE,
+            templates=playbooks,
+            input_vars=input_vars)
+        if result:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((True, None), (result, error))
