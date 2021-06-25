@@ -27,7 +27,7 @@ module load-balancer {
     grouping admin-state-up {
       leaf admin-state-up {
         description
-          "The administrative state of the resource, which is up (true) or down (false).";
+          "The administrative state of the resource, which is up (value:true) or down (value:false).";
         type boolean;
         default true;
       }
@@ -114,6 +114,7 @@ module load-balancer {
         }
         default "HTTP";
       }
+
       leaf protocol-port {
         description
           "The protocol port number for the resource.";
@@ -121,6 +122,13 @@ module load-balancer {
             range 0..65535;
         }
       }
+
+      leaf-list pools {
+        description
+          "List of pools that belong to the listener.";
+        type string;
+      }
+
       leaf connection-limit {
         description 
           "Maximum connections this load balancer can have. Default is infinite.";
@@ -138,20 +146,12 @@ module load-balancer {
         description "Name of the pool.";
         type string;
       }
-      leaf-list listeners {
-        description
-          "The ID of the listener for the pool.";
-        type string;
-      }
+
       leaf protocol {
         description
-          "The protocol for the resource. One of HTTP, HTTPS, SCTP, TCP, TERMINATED_HTTPS, or UDP.";
+          "The protocol for the resource, either TCP or UDP.";
         type enumeration {
-          enum HTTP;
-          enum HTTPS;
-          enum SCTP;
           enum TCP;
-          enum TERMINATED_HTTPS;
           enum UDP;
         }
         mandatory true;
@@ -166,18 +166,6 @@ module load-balancer {
           enum SOURCE_IP_PORT;
         }
         default "ROUND_ROBIN";
-      }
-      container session-persistence {
-        description 
-          "The session persistence algorithm. This algorithm is a dictionary with type and cookie_name keys.";
-        leaf cookie-name {
-          type string;
-          description "Cookie Name.";
-        }
-        leaf type {
-          type string;
-          description "Cookie type.";
-        }
       }
     }
 
@@ -219,28 +207,31 @@ module load-balancer {
         mandatory true;
       }
 
-      leaf-list pools {
+      leaf protocol {
         description
-          "ID of pools associated with healthmonitor.";
-        type string;
+          "Method to health check member status.";
+        type enumeration {
+          enum ICMP;
+          enum UDP;
+          enum TCP;
+          enum HTTP;
+          enum HTTPS;
+        }
+        default "ICMP";
       }
 
-      leaf type {
-        description
-          "Type of the healthmonitor.";
-        type string;
-        mandatory true;
-      }
       leaf delay {
         description 
           "The interval, in seconds, between health checks.";
         type uint32;
       }
+
       leaf timeout {
         description 
           "The time, in seconds, after which a health check times out.";
         type uint32;
       }
+
       leaf retry-up {
         description
           "The number of successful checks before changing the operating status of the member to ONLINE. A valid value is from 1 to 10.";
@@ -248,6 +239,7 @@ module load-balancer {
           range 1..10;
         }
       }
+
       leaf retry-down {
         description
           "The number of allowed checks before changing the operating status of the member to ERROR. A valid value is from 1 to 10.";
@@ -255,21 +247,22 @@ module load-balancer {
           range 1..10;
         }
       }
+
     }
     grouping extended-load-balancer {
       container load-balancer {
         presence true;
         uses loadbalancer-attributes;
 
-        list listener {
+        list listeners {
           key "name";            
           uses listener-attributes;
         }
 
-        list pool {
+        list pools {
           key "name";            
           uses pool-attributes;
-          list member {
+          list members {
             key "name";
             uses member-attributes;
           }
