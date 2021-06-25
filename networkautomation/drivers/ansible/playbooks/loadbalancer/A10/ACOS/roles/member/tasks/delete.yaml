@@ -1,0 +1,19 @@
+---
+- name: Remove member from service group
+  a10_slb_service_group_member:
+    name: "{{ lb_member.name }}"
+    service_group_name: "{{ lb_pool.name }}"
+    port: "{{ lb_member.protocol_port }}"
+    state: absent
+
+- name: Remove back-end server port
+  a10_slb_server_port:
+    server_name: "{{ lb_member.name }}"
+    protocol: "{{ lb_pool.protocol | lower }}"
+    port_number: "{{ lb_member.protocol_port }}"
+    state: absent
+
+- name: Remove back-end server
+  a10_slb_server:
+    name: "{{ lb_member.name }}"
+    state: absent

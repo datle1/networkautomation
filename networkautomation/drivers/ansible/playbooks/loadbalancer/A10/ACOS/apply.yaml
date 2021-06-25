@@ -1,0 +1,53 @@
+---
+- name: A10 LB
+  hosts: vthunder
+  connection: local
+  gather_facts: false
+  collections:
+  - a10.acos_axapi
+  vars:
+    loadbalancer:
+      address: 10.61.123.211
+      admin_state_up: true
+      listeners:
+        - admin_state_up: true
+          connection_limit: 10
+          name: listener1
+          pool_name: pool1
+          protocol: HTTP
+          protocol_port: 9999
+      name: lb1
+      pools:
+        - admin_state_up: true
+          healthmonitor:
+            name: hm1
+            admin_state_up: true
+            delay: 5
+            protocol: ICMP
+            retry_down: 4
+            retry_up: 3
+            timeout: 2
+          lb_algorithm: ROUND_ROBIN
+          members:
+            - address: 2.2.2.1
+              admin_state_up: true
+              name: member1
+              protocol_port: 80
+              weight: 1
+            - address: 2.2.2.2
+              admin_state_up: true
+              name: member2
+              protocol_port: 80
+              weight: 1
+            - address: 2.2.2.3
+              admin_state_up: true
+              name: member3
+              protocol_port: 80
+              weight: 1
+          name: pool1
+          protocol: TCP
+      project_id: ''
+      provider: a10
+      vip_network_input: ''
+  roles:
+    - role: loadbalancer

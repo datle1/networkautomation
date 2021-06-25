@@ -1,0 +1,12 @@
+---
+- name: Create virtual server ports
+  a10_slb_virtual_server_port:
+    name: "{{ lb_listener.name }}"
+    virtual_server_name: "{{ loadbalancer.name }}"
+    service_group: "{{ lb_listener.pool_name }}"
+    port_number: "{{ lb_listener.protocol_port }}"
+    protocol: "{{ 'tcp' if lb_listener.protocol == 'TCP' or lb_listener.protocol == 'HTTPS' else
+                  'udp' if lb_listener.protocol == 'UDP' else
+                  'http' if lb_listener.protocol == 'HTTP' else
+                  'https' if lb_listener.protocol == 'TERMINATED_HTTPS' else 'others' }}"
+    state: present

@@ -1,0 +1,40 @@
+---
+- name: Create health monitor
+  a10_health_monitor:
+    name: "{{ health.name }}"
+    timeout: "{{ health.timeout }}"
+    interval: "{{ health.delay }}"
+    up_retry: "{{ health.retry_up }}"
+    retry: "{{ health.retry_down }}"
+    state: present
+
+- name: Create health monitor method ICMP
+  a10_health_monitor_method_icmp:
+    monitor_name: "{{ health.name }}"
+    icmp: true
+    state: present
+  when: health.protocol == "ICMP"
+
+- name: Create health monitor method UDP
+  a10_health_monitor_method_udp:
+    monitor_name: "{{ health.name }}"
+    state: present
+  when: health.protocol == "UDP"
+
+- name: Create health monitor method TCP
+  a10_health_monitor_method_tcp:
+    monitor_name: "{{ health.name }}"
+    state: present
+  when: health.protocol == "TCP"
+
+- name: Create health monitor method HTTP
+  a10_health_monitor_method_http:
+    monitor_name: "{{ health.name }}"
+    state: present
+  when: health.protocol == "HTTP"
+
+- name: Create health monitor method HTTPS
+  a10_health_monitor_method_https:
+    monitor_name: "{{ health.name }}"
+    state: present
+  when: health.protocol == "HTTPS"

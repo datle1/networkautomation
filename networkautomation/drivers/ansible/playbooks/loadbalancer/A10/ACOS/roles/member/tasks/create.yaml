@@ -1,0 +1,22 @@
+---
+- name: Create backend servers
+  a10_slb_server:
+    name: "{{ lb_member.name }}"
+    host: "{{ lb_member.address }}"
+    state: present
+
+- name: Configure protocol and port for backend servers
+  a10_slb_server_port:
+    server_name: "{{ lb_member.name }}"
+    protocol: "{{ lb_pool.protocol | lower }}"
+    port_number: "{{ lb_member.protocol_port }}"
+    state: present
+
+- name: Add backend servers to service group as members
+  a10_slb_service_group_member:
+    name: "{{ lb_member.name }}"
+    service_group_name: "{{ lb_pool.name }}"
+    port: "{{ lb_member.protocol_port }}"
+    member_priority: "{{ lb_member.weight }}"
+    state: present
+
