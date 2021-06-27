@@ -1,6 +1,6 @@
 ---
 - name: a10 LB
-  hosts: vthunder
+  hosts: all
   connection: local
   gather_facts: false
   collections:

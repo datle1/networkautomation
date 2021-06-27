@@ -1,7 +1,8 @@
-import os
-from unittest import TestCase
+import unittest
+from unittest import TestCase, mock
 from networkautomation import common, job_manager, network_function
 from networkautomation.drivers.ansible.libansible import download_generate_ansible_cfg
+from networkautomation.drivers.driver_factory import DriverFactory
 
 
 class FunctionalTest(TestCase):
@@ -56,7 +57,7 @@ class FunctionalTest(TestCase):
             print('Rest job is successful')
         else:
             print('Rest job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task BACKUP: Driver is not found]'),
+        self.assertEqual((False, '[Task INIT: Driver is not found]'),
                         (result, error))
 
     def test_execute_ansible_job_timeout_backup(self):
@@ -261,3 +262,46 @@ class FunctionalTest(TestCase):
         else:
             print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((True, None), (result, error))
+
+    @unittest.skip
+    @mock.patch.object(DriverFactory, 'get_driver_dir')
+    def test_execute_a10_create_lb(self, mock_method):
+        mock_method.return_value = '../drivers/ansible/'
+        target = network_function.NetworkFunction('loadbalancer',
+                                                    'a10',
+                                                    'acos',
+                                                    '2.2',
+                                                    {'username': 'admin',
+                                                     'password': 'admin'},
+                                                    '10.10.10.11')
+        job_mgmt = job_manager.JobManager()
+        input_vars = {'load_balancer': {
+                        'listeners': [{'name': 'ls1',
+                                       'pools': ['pl1'],
+                                       'protocol': 'HTTP',
+                                       'protocol-port': 8000}],
+                        'name': 'lb_123',
+                        'network-id': '764dc206-6f84-4e12-831e-d277ddf6c9c9',
+                        'pools': [{
+                            'healthmonitor': {
+                                'name': 'test',
+                                'protocol': 'HTTP'},
+                            'lb-algorithm': 'ROUND_ROBIN',
+                            'members': [{
+                                'name': 'name',
+                                'protocol-port': 8000}],
+                            'name': 'pl1',
+                            'protocol': 'TCP'}],
+                        'provider': 'octavia'}
+                    }
+        result, error = job_mgmt.execute_job(common.JobType.USE_ACTION,
+                                            target,
+                                            action=common.ActionType.CREATE,
+                                            element='loadbalancer',
+                                            input_vars=input_vars)
+        if result:
+            print('The job is successful')
+        else:
+            print('The job is failed. Reason: ' + error)
+        self.assertEqual((True, None),
+            (result, error))

@@ -19,10 +19,11 @@ def kill(pid):
         print('Killed process maybe exited: ' + str(ex))
 
 
-def run_single_process(driver, state, target, templates, input_vars,
-                       child_conn):
+def run_single_process(driver, state, target, templates, action, element,
+                       input_vars, child_conn):
     try:
-        error = driver.execute(state, target, templates, input_vars)
+        error = driver.execute(state, target, templates, action, element,
+            input_vars)
         if error:
             child_conn.send(str(error))
         else:
@@ -67,16 +68,15 @@ class Job:
 
         # if self.vars:
         #     data_model.DataModel.validate_data(self.vars)
-        if self.driver_type:
-            self.driver = driver_manager.get_driver_from_name(
-                self.driver_type.value, self.target)
 
-    def get_driver(self, state):
-        return self.driver or \
-               driver_manager.get_driver_from_state(self.element,
-                   state.value, self.target)
+        self.driver = driver_manager.get_driver(self.driver_type,
+            self.target, self.element)
 
     def execute(self, timeout):
+        if not self.driver:
+            self.error.append(TaskResult(self.state.value,
+                TaskResult.TASK_DRIVER_NOT_FOUND))
+            return False, str(self.error)
         if self.run_task(JobState.BACKUP, timeout) \
                 and self.run_task(JobState.APPLY, timeout) \
                 and self.run_task(JobState.VERIFY, timeout):
@@ -91,15 +91,11 @@ class Job:
 
     def run_task(self, state, timeout):
         self.state = state
-        driver = self.get_driver(self.state)
-        if not driver:
-            self.error.append(TaskResult(self.state.value,
-                TaskResult.TASK_DRIVER_NOT_FOUND))
-            return False
         parent_conn, child_conn = multiprocessing.Pipe()
         p = multiprocessing.Process(target=run_single_process,
-                                    args=(driver, self.state.value,
+                                    args=(self.driver, self.state.value,
                                           self.target, self.templates,
+                                          self.action, self.element,
                                           self.vars, child_conn))
         p.start()
         self.pid = p.pid

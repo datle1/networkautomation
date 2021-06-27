@@ -157,10 +157,13 @@ def delete_inventory(inventory_path):
 
 
 def execute_playbook(playbook, host, user, password, extra_config=None,
-                     input_vars=None):
+                     input_vars=None, tag=None):
     create_inventory(INVENTORY_FILE, host, user, password, extra_config, 'all')
     loader = DataLoader()
-    context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False,
+    tags = []
+    if tag:
+        tags.append(tag)
+    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
                                     module_path=None, verbosity=True,
                                     check=False, start_at_task=None,
@@ -194,7 +197,8 @@ def execute_playbook(playbook, host, user, password, extra_config=None,
                 return False, reasons
             else:
                 # When only one task failed
-                reasons.append(failed_result["msg"])
+                reasons.append(failed_result.get("msg") or
+                               failed_result.get("reason"))
                 return False, reasons
         else:
             return False, msg
