@@ -1,5 +1,5 @@
 ---
-- name: A10 LB
+- name: a10 LB
   hosts: vthunder
   connection: local
   gather_facts: false

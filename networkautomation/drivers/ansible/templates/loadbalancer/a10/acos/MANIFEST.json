@@ -1,0 +1,14 @@
+{
+    "template_info": {
+        "description": "Template to configure ACOS devices over AXAPIs",
+        "version": "1.1.2",
+        "authors": ["tupm"],
+        "supported_elements": [
+            "loadbalancer",
+            "listener",
+            "pool",
+            "member",
+            "healthmonitor"
+        ]
+    }
+}
