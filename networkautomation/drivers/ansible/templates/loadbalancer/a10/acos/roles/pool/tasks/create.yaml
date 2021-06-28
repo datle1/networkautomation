@@ -1,4 +1,18 @@
 ---
+- include_role:
+    name: healthmonitor
+    apply:
+      tags:
+        - loadbalancer
+        - pool
+        - healthmonitor
+  vars:
+    health: "{{ lb_pool.healthmonitor }}"
+  tags:
+    - loadbalancer
+    - pool
+    - healthmonitor
+
 - name: Create service group
   a10_slb_service_group:
     name: "{{ lb_pool.name }}"
@@ -14,8 +28,7 @@
     - loadbalancer
     - pool
 
-- name: Create backend servers and add to service group
-  include_role:
+- include_role:
     name: member
     apply:
       tags:

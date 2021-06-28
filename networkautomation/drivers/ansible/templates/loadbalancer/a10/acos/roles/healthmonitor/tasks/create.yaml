@@ -18,23 +18,31 @@
 - name: Create health monitor method UDP
   a10_health_monitor_method_udp:
     monitor_name: "{{ health.name }}"
+    udp: true
+    udp_port: "{{ lb_pool.protocol_port }}"
     state: present
   when: health.protocol == "UDP"
 
 - name: Create health monitor method TCP
   a10_health_monitor_method_tcp:
     monitor_name: "{{ health.name }}"
+    method_tcp: true
+    tcp_port: "{{ lb_pool.protocol_port }}"
     state: present
   when: health.protocol == "TCP"
 
 - name: Create health monitor method HTTP
   a10_health_monitor_method_http:
     monitor_name: "{{ health.name }}"
+    http: true
+    http_port: "{{ lb_pool.protocol_port }}"
     state: present
   when: health.protocol == "HTTP"
 
 - name: Create health monitor method HTTPS
   a10_health_monitor_method_https:
     monitor_name: "{{ health.name }}"
+    https: true
+    web_port: "{{ lb_pool.protocol_port }}"
     state: present
   when: health.protocol == "HTTPS"

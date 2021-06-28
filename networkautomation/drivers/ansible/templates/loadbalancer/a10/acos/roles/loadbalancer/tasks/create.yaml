@@ -1,18 +1,5 @@
 ---
 - include_role:
-    name: healthmonitor
-    apply:
-      tags:
-        - loadbalancer
-        - healthmonitor
-  loop: "{{ loadbalancer.pools | map(attribute='healthmonitor') | list }}"
-  loop_control:
-    loop_var: health
-  tags:
-    - loadbalancer
-    - healthmonitor
-
-- include_role:
     name: pool
     apply:
       tags:
@@ -25,6 +12,7 @@
     - loadbalancer
     - pool
     - member
+    - healthmonitor
 
 - name: Create virtual server
   a10_slb_virtual_server:

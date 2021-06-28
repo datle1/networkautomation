@@ -1,6 +1,5 @@
 ---
-- name: Remove backend servers from service group
-  include_role:
+- include_role:
     name: member
     apply:
       tags:
@@ -22,3 +21,17 @@
   tags:
     - loadbalancer
     - pool
+
+- include_role:
+    name: healthmonitor
+    apply:
+      tags:
+        - loadbalancer
+        - pool
+        - healthmonitor
+  vars:
+    health: "{{ lb_pool.healthmonitor }}"
+  tags:
+    - loadbalancer
+    - pool
+    - healthmonitor
