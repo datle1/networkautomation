@@ -105,12 +105,10 @@ module load-balancer {
         description
           "The protocol for the resource. One of HTTP, HTTPS, SCTP, TCP, TERMINATED_HTTPS, or UDP.";
         type enumeration {
+          enum UDP;
+          enum TCP;
           enum HTTP;
           enum HTTPS;
-          enum SCTP;
-          enum TCP;
-          enum TERMINATED_HTTPS;
-          enum UDP;
         }
         default "HTTP";
       }
@@ -153,9 +151,20 @@ module load-balancer {
         type enumeration {
           enum TCP;
           enum UDP;
+          enum HTTP;
+          enum HTTPS;
         }
         mandatory true;
       }
+
+      leaf protocol-port {
+        description
+          "The protocol port number for the resource.";
+        type uint16 {
+          range 0..65535;
+        }
+      }
+
       leaf lb-algorithm {
         description
           "The load balancing algorithm for the pool.";
@@ -176,18 +185,13 @@ module load-balancer {
           "Name of the member.";
         type string;
       }
-      leaf protocol-port {
-        description
-          "The protocol port number for the resource.";
-        type uint16 {
-          range 0..65535;
-        }
-      }
+
       leaf address {
         description
           "IP address of the member.";
         type inet:ip-address;
       }
+
       leaf weight {
         description 
           "Weight of member.";
@@ -250,7 +254,7 @@ module load-balancer {
 
     }
     grouping extended-load-balancer {
-      container load-balancer {
+      container loadbalancer {
         presence true;
         uses loadbalancer-attributes;
 
