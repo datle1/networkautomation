@@ -4,9 +4,5 @@
     name: "{{ lb_listener.name }}"
     virtual_server_name: "{{ loadbalancer.name }}"
     port_number: "{{ lb_listener.protocol_port }}"
-    protocol: "{{ 'tcp' if lb_listener.protocol == 'TCP' or lb_listener.protocol == 'HTTPS' else
-                  'udp' if lb_listener.protocol == 'UDP' else
-                  'http' if lb_listener.protocol == 'HTTP' else
-                  'https' if lb_listener.protocol == 'TERMINATED_HTTPS' else 'others' }}"
+    protocol: "{{ lb_listener.protocol | lower }}"
     state: absent
-

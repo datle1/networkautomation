@@ -32,16 +32,6 @@
     - loadbalancer
     - pool
     - member
-
-- include_role:
-    name: healthmonitor
-    apply:
-      tags:
-        - loadbalancer
-        - healthmonitor
-  loop: "{{ loadbalancer.pools | map(attribute='healthmonitor') | list }}"
-  loop_control:
-    loop_var: health
-  tags:
-    - loadbalancer
     - healthmonitor
+
+
