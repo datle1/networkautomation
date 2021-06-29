@@ -32,8 +32,6 @@ class NetworkAutomationInstaller(install):
                         working_dir + self.model_file]
         if subprocess.call(protoc_command) != 0:
             sys.exit(-1)
-        from networkautomation.drivers.ansible.libansible import download_generate_ansible_cfg
-        download_generate_ansible_cfg()
         install.run(self)
 
 
