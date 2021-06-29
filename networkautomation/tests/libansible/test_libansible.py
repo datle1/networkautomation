@@ -1,16 +1,17 @@
 import os
 from unittest import TestCase
 from unittest.mock import MagicMock
-from networkautomation.drivers.ansible import libansible
+from networkautomation.drivers.ansible import ansible_utils
 
 ansible_cfg_path = "ansible.cfg"
 inventory_path = "inventory"
 
+
 class LibansibileTest(TestCase):
 
     def test_create_ansible_cfg(self):
-        libansible.install_collection = MagicMock(name='install_collection')
-        libansible.download_generate_ansible_cfg(ansible_cfg_path)
+        ansible_utils.install_collection = MagicMock(name='install_collection')
+        ansible_utils.download_generate_ansible_cfg(ansible_cfg_path)
         import napalm_ansible
         import ntc_ansible_plugin
         napalm_module_dir = "{}".format(os.path.dirname(
@@ -20,24 +21,27 @@ class LibansibileTest(TestCase):
         with open(ansible_cfg_path, "r") as file:
             content = file.read()
         os.remove(ansible_cfg_path)
-        a10_acos_axapi_path = os.environ['HOME'] + \
-                              '/collections/ansible_collections'
+        a10_acos_axapi_path = os.environ['HOME'] + '/collections'
         expect = '[defaults]\n' \
                  'host_key_checking=False\n' \
                  'log_path=/var/log/ansible.log\n' \
                  'ansible_python_interpreter=\"/usr/bin/env python\"\n' \
-                 'action_plugins={}/plugins/action\n' \
-                 'library={}/modules:{}\n' \
+                 'action_plugins={}/plugins/action:{}\n' \
+                 'library={}/modules:{}:{}\n' \
                  'collections_paths={}\n' \
             .format(napalm_module_dir,
-            napalm_module_dir,
-            ntc_ansible_dir,
-            a10_acos_axapi_path)
+                    a10_acos_axapi_path +
+                    '/ansible_collections/a10/acos_axapi/plugins/action',
+                    napalm_module_dir,
+                    ntc_ansible_dir,
+                    a10_acos_axapi_path +
+                    '/ansible_collections/a10/acos_axapi/plugins/modules',
+                    a10_acos_axapi_path)
         self.assertEqual(content, expect)
 
     def test_create_inventory_user_pass(self):
-        libansible.create_inventory(inventory_path, 'localhost', 'admin',
-            'admin', None, 'all')
+        ansible_utils.create_inventory('localhost', 'admin',
+                                    'admin', None, 'all', inventory_path)
         with open(inventory_path, "r") as file:
             content = file.read()
         os.remove(inventory_path)
@@ -46,8 +50,8 @@ class LibansibileTest(TestCase):
         self.assertEqual(content, expect)
 
     def test_create_inventory_vim_url(self):
-        libansible.create_inventory(inventory_path, 'localhost', None,
-            None, 'vim_url=abc ', 'all')
+        ansible_utils.create_inventory('localhost', None, None,
+                                    'vim_url=abc ', 'all', inventory_path)
         with open(inventory_path, "r") as file:
             content = file.read()
         os.remove(inventory_path)

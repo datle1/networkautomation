@@ -1,74 +1,13 @@
-import os
-import urllib.request
-import zipfile
 from enum import Enum
-from pathlib import Path
-
 from ansible import context
 from ansible.errors import AnsibleError
-from ansible.module_utils.common.collections import ImmutableDict
 from ansible.executor.playbook_executor import PlaybookExecutor
-from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
-from ansible.vars.manager import VariableManager
+from ansible.module_utils.common.collections import ImmutableDict
+from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.callback import CallbackBase
-
-
-INVENTORY_FILE = "inventory"
-ANSIBLE_CONFIG_FILE = ".ansible.cfg"
-
-
-def download_package(dir, url):
-    file_name = 'temp.zip'
-    urllib.request.urlretrieve(url, file_name)
-    with zipfile.ZipFile(file_name, 'r') as zip_ref:
-        zip_ref.extractall(dir)
-    os.remove(file_name)
-
-
-def install_collection(collections_dir, module_name, download_url,
-                       unzip_package):
-    dir_list = module_name.split('.')
-    a10_collection_path = collections_dir
-    for dir in dir_list:
-        a10_collection_path += '/' + dir
-    if not os.path.exists(a10_collection_path):
-        dir_tmp = a10_collection_path.replace(dir_list[len(dir_list) - 1], '')
-        Path(dir_tmp).mkdir(parents=True, exist_ok=True)
-        download_package(dir_tmp, download_url)
-        os.rename(dir_tmp + '/' + unzip_package, a10_collection_path)
-
-
-def download_generate_ansible_cfg(config_file=None):
-    home_dir = os.environ['HOME']
-    if config_file:
-        file_path = config_file
-    else:
-        file_path = home_dir + "/" + ANSIBLE_CONFIG_FILE
-    import napalm_ansible
-    napalm_module_dir = "{}".format(os.path.dirname(
-        napalm_ansible.__file__))
-    plugin_paths = napalm_module_dir + '/plugins/action'
-    module_paths = napalm_module_dir + '/modules'
-
-    import ntc_ansible_plugin
-    module_paths += ':' + os.path.dirname(ntc_ansible_plugin.__file__)
-
-    collections_dir = home_dir + '/collections/ansible_collections'
-    install_collection(collections_dir, 'a10.acos_axapi',
-        'https://codeload.github.com/a10networks/a10-acos-axapi/zip/refs/heads'
-        '/master',
-        'a10-acos-axapi-master')
-
-    with open(file_path, 'w') as f:
-        f.write('[defaults]\n'
-                'host_key_checking=False\n'
-                'log_path=/var/log/ansible.log\n'
-                'ansible_python_interpreter=\"/usr/bin/env python\"\n'
-                'action_plugins={}\n'
-                'library={}\n'
-                'collections_paths={}\n'
-                .format(plugin_paths, module_paths, collections_dir))
+from ansible.vars.manager import VariableManager
+from networkautomation.drivers.ansible import ansible_utils
 
 
 class PlayBookResultsCollector(CallbackBase):
@@ -138,27 +77,10 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def create_inventory(inventory_path, host, username, password, extra_config,
-                     group):
-    h1 = host + ' ansible_python_interpreter="/usr/bin/env python" '
-    if username and password:
-        h1 += 'ansible_ssh_user={1} ansible_ssh_pass={2} '\
-            .format(host, username, password)
-    if extra_config:
-        h1 += extra_config
-    with open(inventory_path, 'w') as f:
-        f.write('[{}]\n'.format(group))
-        f.write(h1)
-
-
-def delete_inventory(inventory_path):
-    if os.path.exists(inventory_path):
-        os.remove(inventory_path)
-
-
 def execute_playbook(playbook, host, user, password, extra_config=None,
                      input_vars=None, tag=None):
-    create_inventory(INVENTORY_FILE, host, user, password, extra_config, 'all')
+    ansible_utils.create_inventory(host, user, password, extra_config, 'all',
+                                   ansible_utils.INVENTORY_FILE)
     loader = DataLoader()
     tags = []
     if tag:
@@ -168,7 +90,7 @@ def execute_playbook(playbook, host, user, password, extra_config=None,
                                     module_path=None, verbosity=True,
                                     check=False, start_at_task=None,
                                     forks=1)
-    inventory = InventoryManager(loader=loader, sources=INVENTORY_FILE)
+    inventory = InventoryManager(loader=loader, sources=ansible_utils.INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
     if input_vars:
         variable_manager.extra_vars.update(input_vars)
@@ -208,4 +130,4 @@ def execute_playbook(playbook, host, user, password, extra_config=None,
         loader.cleanup_all_tmp_files()
         return False, err.message
     finally:
-        delete_inventory(INVENTORY_FILE)
+        ansible_utils.delete_inventory(ansible_utils.INVENTORY_FILE)

@@ -16,13 +16,12 @@ class AnsibleDriver(DriverBase):
         if nf.credential:
             if nf.credential.get('auth_url'):
                 self.config['extra'] = ''
-                for k,v in nf.credential.items():
+                for k, v in nf.credential.items():
                     self.config['extra'] += k + '=' + v + ' '
             elif nf.credential.get('username') \
-                and nf.credential.get('password'):
+                    and nf.credential.get('password'):
                 self.config['ssh-user'] = nf.credential['username']
                 self.config['ssh-pass'] = nf.credential['password']
-
 
     def execute(self, event, target, templates=None, action=None,
                 element=None, input_vars=None):

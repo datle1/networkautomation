@@ -1,5 +1,5 @@
 [vthunder]
-1.2.3.4
+1.2.3.4 na_action="create"
 
 [vthunder:vars]
 ansible_port=80
