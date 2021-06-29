@@ -13,8 +13,5 @@ class TestAnsibleDriver(TestCase):
                                                    'password': 'admin'},
                                                   'localhost')
         ad = AnsibleDriver(target)
-        expect = {'ssh-host': 'localhost',
-                  'ssh-user': None,
-                  'ssh-pass': None,
-                  'extra': 'auth_url=url password=admin '}
+        expect = {'ansible_ssh_pass': 'admin', 'auth_url': 'url'}
         self.assertEqual(ad.config, expect)

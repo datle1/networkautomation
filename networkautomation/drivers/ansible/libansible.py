@@ -77,9 +77,8 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def execute_playbook(playbook, host, user, password, extra_config=None,
-                     input_vars=None, tag=None):
-    ansible_utils.create_inventory(host, user, password, extra_config, 'all',
+def execute_playbook(playbook, host, config, input_vars=None, tag=None):
+    ansible_utils.create_inventory(host, config, 'all',
                                    ansible_utils.INVENTORY_FILE)
     loader = DataLoader()
     tags = []

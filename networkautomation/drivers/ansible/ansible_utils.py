@@ -63,14 +63,11 @@ def download_generate_ansible_cfg(config_file=None):
                 .format(plugin_paths, module_paths))
 
 
-def create_inventory(host, username, password, extra_config,
-                     group, inventory_path=INVENTORY_FILE):
+def create_inventory(host, config, group, inventory_path=INVENTORY_FILE):
     h1 = host + ' ansible_python_interpreter="/usr/bin/env python" '
-    if username and password:
-        h1 += 'ansible_ssh_user={1} ansible_ssh_pass={2} '\
-            .format(host, username, password)
-    if extra_config:
-        h1 += extra_config
+    if config:
+        for k, v in config.items():
+            h1 += k + '=' + v + ' '
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
         f.write(h1)

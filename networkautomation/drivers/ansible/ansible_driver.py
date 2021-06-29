@@ -9,19 +9,14 @@ class AnsibleDriver(DriverBase):
     def __init__(self, nf: NetworkFunction, element: str = None,
                  driver_name: str = None):
         super().__init__(nf, element, driver_name)
-        self.config = {'ssh-host': nf.mgmt_ip,
-                       'ssh-user': None,
-                       'ssh-pass': None,
-                       'extra': None}
         if nf.credential:
-            if nf.credential.get('auth_url'):
-                self.config['extra'] = ''
-                for k, v in nf.credential.items():
-                    self.config['extra'] += k + '=' + v + ' '
-            elif nf.credential.get('username') \
-                    and nf.credential.get('password'):
-                self.config['ssh-user'] = nf.credential['username']
-                self.config['ssh-pass'] = nf.credential['password']
+            self.config = nf.credential
+            if nf.credential.get('username'):
+                self.config['ansible_ssh_user'] = nf.credential['username']
+                self.config.pop('username')
+            if nf.credential.get('password'):
+                self.config['ansible_ssh_pass'] = nf.credential['password']
+                self.config.pop('password')
 
     def execute(self, event, target, templates=None, action=None,
                 element=None, input_vars=None):
@@ -38,10 +33,8 @@ class AnsibleDriver(DriverBase):
         if playbook and os.path.exists(playbook):
             result, error = libansible.execute_playbook(
                 playbook,
-                self.config['ssh-host'],
-                self.config['ssh-user'],
-                self.config['ssh-pass'],
-                extra_config=self.config['extra'],
+                target.mgmt_ip,
+                self.config,
                 input_vars=extra_vars,
                 tag=element)
             return error
