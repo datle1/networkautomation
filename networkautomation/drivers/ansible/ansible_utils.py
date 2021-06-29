@@ -43,8 +43,8 @@ def download_generate_ansible_cfg(config_file=None):
     import ntc_ansible_plugin
     module_paths += ':' + os.path.dirname(ntc_ansible_plugin.__file__)
 
-    collections_dir = home_dir + '/collections'
-    ansible_collection_dir = collections_dir + '/ansible_collections'
+    ansible_collection_dir = home_dir + \
+                             '/.ansible/collections/ansible_collections'
     install_collection(ansible_collection_dir, 'a10.acos_axapi',
         'https://codeload.github.com/a10networks/a10-acos-axapi/zip/refs/heads/master',
         'a10-acos-axapi-master')
@@ -60,8 +60,7 @@ def download_generate_ansible_cfg(config_file=None):
                 'ansible_python_interpreter=\"/usr/bin/env python\"\n'
                 'action_plugins={}\n'
                 'library={}\n'
-                'collections_paths={}\n'
-                .format(plugin_paths, module_paths, collections_dir))
+                .format(plugin_paths, module_paths))
 
 
 def create_inventory(host, username, password, extra_config,

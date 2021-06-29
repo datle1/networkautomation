@@ -21,14 +21,13 @@ class LibansibileTest(TestCase):
         with open(ansible_cfg_path, "r") as file:
             content = file.read()
         os.remove(ansible_cfg_path)
-        a10_acos_axapi_path = os.environ['HOME'] + '/collections'
+        a10_acos_axapi_path = os.environ['HOME'] + '/.ansible/collections'
         expect = '[defaults]\n' \
                  'host_key_checking=False\n' \
                  'log_path=/var/log/ansible.log\n' \
                  'ansible_python_interpreter=\"/usr/bin/env python\"\n' \
                  'action_plugins={}/plugins/action:{}\n' \
                  'library={}/modules:{}:{}\n' \
-                 'collections_paths={}\n' \
             .format(napalm_module_dir,
                     a10_acos_axapi_path +
                     '/ansible_collections/a10/acos_axapi/plugins/action',
