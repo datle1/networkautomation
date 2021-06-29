@@ -41,21 +41,13 @@ class LibansibileTest(TestCase):
     def test_create_inventory_user_pass(self):
         ansible_utils.create_inventory('localhost',
                                        {'ansible_ssh_user': 'admin',
-                                        'ansible_ssh_pass': 'admin'},
+                                        'ansible_ssh_pass': 'admin',
+                                        'vim_url': 'abc'},
                                        'all', inventory_path)
         with open(inventory_path, "r") as file:
             content = file.read()
         os.remove(inventory_path)
         expect = '[all]\nlocalhost ansible_python_interpreter="/usr/bin/env ' \
-                 'python" ansible_ssh_user=admin ansible_ssh_pass=admin '
-        self.assertEqual(content, expect)
-
-    def test_create_inventory_vim_url(self):
-        ansible_utils.create_inventory('localhost', {'vim_url': 'abc'}, 'all',
-                                       inventory_path)
-        with open(inventory_path, "r") as file:
-            content = file.read()
-        os.remove(inventory_path)
-        expect = '[all]\nlocalhost ansible_python_interpreter="/usr/bin/env ' \
-                 'python" vim_url=abc '
+                 'python" ansible_ssh_user=admin ansible_ssh_pass=admin ' \
+                 'vim_url=abc '
         self.assertEqual(content, expect)
