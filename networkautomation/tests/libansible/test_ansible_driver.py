@@ -10,7 +10,7 @@ class TestAnsibleDriver(TestCase):
                                                   'octavia',
                                                   '2.0',
                                                   {'auth_url': 'url',
-                                                   'password': 'admin'},
+                                                   'ssh-password': 'admin'},
                                                   'localhost')
         ad = AnsibleDriver(target)
         expect = {'ansible_ssh_pass': 'admin', 'auth_url': 'url'}

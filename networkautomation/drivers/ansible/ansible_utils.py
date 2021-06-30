@@ -29,7 +29,7 @@ def install_collection(collections_dir, module_name, download_url,
 
 
 def download_generate_ansible_cfg(config_file=None):
-    home_dir = os.environ['HOME']
+    home_dir = os.path.expanduser('~')
     if config_file:
         file_path = config_file
     else:

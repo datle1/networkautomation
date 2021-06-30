@@ -11,12 +11,12 @@ class AnsibleDriver(DriverBase):
         super().__init__(nf, element, driver_name)
         if nf.credential:
             self.config = nf.credential
-            if nf.credential.get('username'):
-                self.config['ansible_ssh_user'] = nf.credential['username']
-                self.config.pop('username')
-            if nf.credential.get('password'):
-                self.config['ansible_ssh_pass'] = nf.credential['password']
-                self.config.pop('password')
+            if nf.credential.get('ssh-username'):
+                self.config['ansible_ssh_user'] = nf.credential['ssh-username']
+                self.config.pop('ssh-username')
+            if nf.credential.get('ssh-password'):
+                self.config['ansible_ssh_pass'] = nf.credential['ssh-password']
+                self.config.pop('ssh-password')
 
     def execute(self, event, target, templates=None, action=None,
                 element=None, input_vars=None):
