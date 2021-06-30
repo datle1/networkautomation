@@ -64,7 +64,7 @@ def download_generate_ansible_cfg(config_file=None):
 
 
 def create_inventory(host, config, group, inventory_path=INVENTORY_FILE):
-    h1 = host + ' ansible_python_interpreter="/usr/bin/env python" '
+    h1 = host + ' ansible_python_interpreter="/usr/bin/env python3" '
     if config:
         for k, v in config.items():
             h1 += k + '=' + v + ' '

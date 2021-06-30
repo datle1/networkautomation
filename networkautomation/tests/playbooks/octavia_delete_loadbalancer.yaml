@@ -1,0 +1,18 @@
+- name: Delete a vLB Openstack
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: Delete a vLB Openstack
+    openstack.cloud.loadbalancer:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ loadbalancer.name }}"
+      vip_network: "{{ loadbalancer.network_id }}"
+      vip_address: "{{ loadbalancer.address | default(omit) }}"
+      state: absent

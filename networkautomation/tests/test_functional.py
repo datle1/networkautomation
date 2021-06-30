@@ -231,9 +231,8 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        file_name = str.encode(input_vars.get("load_balancer").get("name"))
-        err = "[Task APPLY: ['could not locate file in lookup: netABC']]"\
-            .format(file_name)
+        err = "[Task APPLY: {'msg': 'could not locate file in lookup: " \
+              "netABC', '_ansible_no_log': None}]"
         self.assertEqual((False, err), (result, error))
 
     @mock.patch.object(DriverFactory, 'get_driver_dir')
@@ -274,7 +273,66 @@ class FunctionalTest(TestCase):
             print('The job is successful')
         else:
             print('The job is failed. Reason: ' + error)
-        self.assertEqual((False, "[Task APPLY: ['missing required arguments: "
-                                 "ansible_host, ansible_password, "
-                                 "ansible_port, ansible_username']]"),
+        self.assertEqual((False, "[Task APPLY: {'msg': 'missing required arguments: ansible_host, "
+                                 "ansible_password, ansible_port, ansible_username', 'invocation': "
+                                 "{'module_args': {'name': 'hm1', 'timeout': '2', 'interval': '5', 'up_retry': "
+                                 "'3', 'retry': '4', 'state': 'present'}}, '_ansible_no_log': False, "
+                                 "'changed': False}]"),
                          (result, error))
+
+    @unittest.skip
+    def test_execute_ansible_vlb_octavia(self):
+        playbooks = {
+            'APPLY': 'playbooks/octavia_create_loadbalancer.yaml'
+        }
+        input_vars = {'loadbalancer':
+                          {'name': 'lb_123',
+                               'network_id': '764dc206-6f84-4e12-831e',
+                               'provider': 'octavia',
+                               'listeners': [
+                                   {'name': 'ls1', 'protocol': 'HTTP',
+                                    'protocol_port': 8000,
+                                    'pools': ['pl1']}],
+                               'pools': [
+                                   {'name': 'pl1', 'protocol': 'HTTP',
+                                    'protocol_port': 8000,
+                                    'lb_algorithm': 'ROUND_ROBIN',
+                                    'members': [{
+                                        'name': 'name',
+                                        'address': "10.60.31.115"
+                                    }],
+                                    'healthmonitor':
+                                        {
+                                            'name': 'test',
+                                            'protocol': 'HTTP',
+                                            'delay': '10',
+                                            'timeout': '5',
+                                            'retry_up': '3',
+                                            'retry_down': '4'
+                                        }
+                                    }
+                               ]
+                          }
+                      }
+        target = network_function.NetworkFunction('vloadbalancer',
+                                                  'openstack',
+                                                  'octavia',
+                                                  '2.0',
+                                                  {'username': 'admin',
+                                                   'password': 'admin',
+                                                   'auth_url':
+                                                       'http://127.0.0.1'},
+                                                  'localhost')
+
+        job_mgmt = job_manager.JobManager()
+        result, error = job_mgmt.execute_job(common.JobType.USE_TEMPLATE,
+                                             target,
+                                             common.DriverType.ANSIBLE,
+                                             templates=playbooks,
+                                             input_vars=input_vars,
+                                             timeout=180)
+        if result:
+            print('Ansible job is successful')
+        else:
+            print('Ansible job is failed. Reason: ' + error)
+        self.assertEqual((True, None), (result, error))

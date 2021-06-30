@@ -48,6 +48,6 @@ class LibansibileTest(TestCase):
             content = file.read()
         os.remove(inventory_path)
         expect = '[all]\nlocalhost ansible_python_interpreter="/usr/bin/env ' \
-                 'python" ansible_ssh_user=admin ansible_ssh_pass=admin ' \
+                 'python3" ansible_ssh_user=admin ansible_ssh_pass=admin ' \
                  'vim_url=abc '
         self.assertEqual(content, expect)

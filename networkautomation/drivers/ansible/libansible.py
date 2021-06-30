@@ -108,19 +108,8 @@ def execute_playbook(playbook, host, config, input_vars=None, tag=None):
         if msg == PlaybookResult.RUN_OK:
             return True, None
         elif msg == PlaybookResult.RUN_FAILED_HOSTS:
-            reasons = []
             failed_result = playbook_result["failed"][host]._result
-            if failed_result.get("results") is not None:
-                # when multi tasks failed
-                task_results = playbook_result["failed"][host]._result.get("results")
-                for task_result in task_results:
-                    reasons.append(task_result["msg"])
-                return False, reasons
-            else:
-                # When only one task failed
-                reasons.append(failed_result.get("msg") or
-                               failed_result.get("reason"))
-                return False, reasons
+            return False, failed_result
         else:
             return False, msg
     except AnsibleError as err:

@@ -1,0 +1,85 @@
+- name: Create a vLB Openstack
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: Create a vLB Openstack
+    openstack.cloud.loadbalancer:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ loadbalancer.name }}"
+      vip_network: "{{ loadbalancer.network_id }}"
+      vip_address: "{{ loadbalancer.address | default(omit) }}"
+      state: present
+
+  - name: Create pool vLB
+    openstack.cloud.lb_pool:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ item.name }}"
+      loadbalancer: "{{ loadbalancer.name }}"
+      protocol: "{{ item.protocol }}"
+      lb_algorithm: "{{ item.lb_algorithm }}"
+      state: present
+    loop: "{{ q('list', loadbalancer.pools[0]) }}"
+
+  - name: Create listeners vLB
+    openstack.cloud.lb_listener:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ item.name }}"
+      loadbalancer: "{{ loadbalancer.name }}"
+      protocol: "{{ item.protocol }}"
+      protocol_port: "{{ item.protocol_port }}"
+      default_pool: "{{ loadbalancer.pools[0].name }}"
+      state: present
+    loop: "{{ q('list', loadbalancer.listeners[0]) }}"
+
+  - name: Create health monitor vLB
+    openstack.cloud.lb_health_monitor:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ item.name }}"
+      pool: "{{ loadbalancer.pools[0].name }}"
+      delay: "{{ item.delay }}"
+      resp_timeout: "{{ item.timeout }}"
+      max_retries: "{{ item.retry_up }}"
+      max_retries_down: "{{ item.retry_down }}"
+      state: present
+    loop: "{{ q('list', loadbalancer.pools[0].healthmonitor) }}"
+
+  - name: Create pool member vLB
+    openstack.cloud.lb_member:
+      auth:
+        auth_url: "{{ auth_url }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        project_name: "{{ project_name | default('admin') }}"
+        user_domain_name: "{{ user_domain_name | default('Default') }}"
+        project_domain_name: "{{ project_domain_name | default('Default') }}"
+      name: "{{ item.name }}"
+      pool: "{{ loadbalancer.pools[0].name }}"
+      address: "{{ item.address }}"
+      protocol_port: "{{ loadbalancer.pools[0].protocol_port }}"
+      state: present
+    loop: "{{ q('list', loadbalancer.pools[0].members[0]) }}"
