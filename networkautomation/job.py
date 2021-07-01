@@ -104,7 +104,8 @@ class Job:
             # Timeout then, terminate process
             print("Task is timeout after " + str(timeout))
             self.error.append(TaskResult(self.state.value,
-                              TaskResult.TASK_TIMEOUT))
+                              TaskResult.TASK_TIMEOUT + ' after ' +
+                                         str(timeout) + ' seconds'))
             self.terminate()
         else:
             res = parent_conn.recv()
