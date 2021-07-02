@@ -1,0 +1,7 @@
+No.,host,username,password,device_type,remark
+1,192.168.0.1,admin,admin1234@r1,cisco_ios,
+2,192.168.0.2,admin,admin1234@r2,cisco_ios,
+3,192.168.0.3,admin,admin1234@r3,cisco_ios,
+4,192.168.0.4,admin,admin1234@r4,cisco_asa,
+5,192.168.0.5,admin,admin1234@r5,juniper_srx,
+6,192.168.0.6,admin,admin1234@r6,D-Link,
