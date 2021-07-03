@@ -3,7 +3,7 @@
   a10_slb_virtual_server_port:
     name: "{{ lb_listener.name }}"
     virtual_server_name: "{{ loadbalancer.name }}"
-    service_group: "{{ lb_listener.pools[0] }}"
+    service_group: "{{ lb_listener.pool_name }}"
     port_number: "{{ lb_listener.protocol_port }}"
     protocol: "{{ lb_listener.protocol | lower }}"
     state: present

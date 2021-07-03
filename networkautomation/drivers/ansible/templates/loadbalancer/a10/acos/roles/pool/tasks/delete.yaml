@@ -10,17 +10,12 @@
   loop_control:
     loop_var: lb_member
   tags:
-    - loadbalancer
-    - pool
     - member
 
 - name: Delete service group
   a10_slb_service_group:
     name: "{{ lb_pool.name }}"
     state: absent
-  tags:
-    - loadbalancer
-    - pool
 
 - include_role:
     name: healthmonitor
@@ -32,6 +27,4 @@
   vars:
     health: "{{ lb_pool.healthmonitor }}"
   tags:
-    - loadbalancer
-    - pool
     - healthmonitor
