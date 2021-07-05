@@ -9,8 +9,6 @@
   vars:
     health: "{{ lb_pool.healthmonitor }}"
   tags:
-    - loadbalancer
-    - pool
     - healthmonitor
 
 - name: Create service group
@@ -24,9 +22,6 @@
                    'src-ip-only-hash' if lb_pool.lb_algorithm == 'SOURCE_IP' else omit }}"
     lc_method: "{{ 'least-connection' if lb_pool.lb_algorithm == 'LEAST_CONNECTIONS' else omit }}"
     state: present
-  tags:
-    - loadbalancer
-    - pool
 
 - include_role:
     name: member
@@ -39,7 +34,5 @@
   loop_control:
     loop_var: lb_member
   tags:
-    - loadbalancer
-    - pool
     - member
 
