@@ -1170,7 +1170,7 @@ class yc_loadbalancer_network_models__loadbalancer(PybindBase):
   the container is represented as a class variable - with a specific
   YANG type.
   """
-  __slots__ = ('_path_helper', '_extmethods', '__admin_state_up','__name','__provider','__project_id','__address','__port_id','__subnet_id','__network_id','__listeners','__pools',)
+  __slots__ = ('_path_helper', '_extmethods', '__admin_state_up','__name','__provider','__address','__port_id','__subnet_id','__network_id','__listeners','__pools',)
 
   _yang_name = 'loadbalancer'
 
@@ -1184,7 +1184,6 @@ class yc_loadbalancer_network_models__loadbalancer(PybindBase):
     self.__admin_state_up = YANGDynClass(base=YANGBool, default=YANGBool("true"), is_leaf=True, yang_name="admin-state-up", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='boolean', is_config=True)
     self.__name = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     self.__provider = YANGDynClass(base=RestrictedClassType(base_type=six.text_type,                                     restriction_type="dict_key",                                     restriction_arg={'octavia': {}, 'a10': {}},), is_leaf=True, yang_name="provider", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='enumeration', is_config=True)
-    self.__project_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="project-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     self.__address = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={'pattern': '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\\p{N}\\p{L}]+)?'}),RestrictedClassType(base_type=six.text_type, restriction_dict={'pattern': '((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))(%[\\p{N}\\p{L}]+)?'}),], is_leaf=True, yang_name="address", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='inet:ip-address', is_config=True)
     self.__port_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="port-id", parent=self, choice=('vip-network-input', 'port'), path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     self.__subnet_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="subnet-id", parent=self, choice=('vip-network-input', 'subnet'), path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
@@ -1328,43 +1327,6 @@ class yc_loadbalancer_network_models__loadbalancer(PybindBase):
 
   def _unset_provider(self):
     self.__provider = YANGDynClass(base=RestrictedClassType(base_type=six.text_type,                                     restriction_type="dict_key",                                     restriction_arg={'octavia': {}, 'a10': {}},), is_leaf=True, yang_name="provider", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='enumeration', is_config=True)
-
-
-  def _get_project_id(self):
-    """
-    Getter method for project_id, mapped from YANG variable /loadbalancer/project_id (string)
-
-    YANG Description: The ID of the project owning this resource.
-    """
-    return self.__project_id
-      
-  def _set_project_id(self, v, load=False):
-    """
-    Setter method for project_id, mapped from YANG variable /loadbalancer/project_id (string)
-    If this variable is read-only (config: false) in the
-    source YANG file, then _set_project_id is considered as a private
-    method. Backends looking to populate this variable should
-    do so via calling thisObj._set_project_id() directly.
-
-    YANG Description: The ID of the project owning this resource.
-    """
-    if hasattr(v, "_utype"):
-      v = v._utype(v)
-    try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="project-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
-    except (TypeError, ValueError):
-      raise ValueError({
-          'error-string': """project_id must be of a type compatible with string""",
-          'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="project-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)""",
-        })
-
-    self.__project_id = t
-    if hasattr(self, '_set'):
-      self._set()
-
-  def _unset_project_id(self):
-    self.__project_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="project-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
 
 
   def _get_address(self):
@@ -1583,7 +1545,6 @@ class yc_loadbalancer_network_models__loadbalancer(PybindBase):
   admin_state_up = __builtin__.property(_get_admin_state_up, _set_admin_state_up)
   name = __builtin__.property(_get_name, _set_name)
   provider = __builtin__.property(_get_provider, _set_provider)
-  project_id = __builtin__.property(_get_project_id, _set_project_id)
   address = __builtin__.property(_get_address, _set_address)
   port_id = __builtin__.property(_get_port_id, _set_port_id)
   subnet_id = __builtin__.property(_get_subnet_id, _set_subnet_id)
@@ -1592,7 +1553,7 @@ class yc_loadbalancer_network_models__loadbalancer(PybindBase):
   pools = __builtin__.property(_get_pools, _set_pools)
 
   __choices__ = {'vip-network-input': {'port': ['port_id'], 'subnet': ['subnet_id'], 'network': ['network_id']}}
-  _pyangbind_elements = OrderedDict([('admin_state_up', admin_state_up), ('name', name), ('provider', provider), ('project_id', project_id), ('address', address), ('port_id', port_id), ('subnet_id', subnet_id), ('network_id', network_id), ('listeners', listeners), ('pools', pools), ])
+  _pyangbind_elements = OrderedDict([('admin_state_up', admin_state_up), ('name', name), ('provider', provider), ('address', address), ('port_id', port_id), ('subnet_id', subnet_id), ('network_id', network_id), ('listeners', listeners), ('pools', pools), ])
 
 
 class yc_vlan_config_network_models__vlan_config(PybindBase):
