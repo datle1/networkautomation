@@ -4,6 +4,7 @@ import sys
 from setuptools import setup
 from setuptools import find_packages
 from setuptools.command.install import install
+from distutils.sysconfig import get_python_lib
 
 
 class NetworkAutomationInstaller(install):
@@ -39,6 +40,17 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 print('Requirements: {}'.format(required))
 
+
+def find_data_files(sub_dir):
+    data_files = []
+    start_point = os.path.join('networkautomation', sub_dir)
+    python_dir = get_python_lib()
+    for root, dirs, files in os.walk(start_point):
+        root_files = [os.path.join(root, i) for i in files]
+        data_files.append((python_dir + '/' + root, root_files))
+    return data_files
+
+
 setup(
     name='networkautomation',
     version='0.2',
@@ -54,6 +66,7 @@ setup(
     author='datlq3',
     author_email='datlq3@viettel.com.vn',
     description='Network Automation Framework',
+    data_files=find_data_files('drivers/ansible/templates'),
     cmdclass={'install': NetworkAutomationInstaller},
     install_requires=required
 )
