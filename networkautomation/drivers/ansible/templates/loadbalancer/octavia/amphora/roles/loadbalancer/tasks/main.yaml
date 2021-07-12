@@ -1,0 +1,2 @@
+---
+- include: "{{ na_action }}.yaml"

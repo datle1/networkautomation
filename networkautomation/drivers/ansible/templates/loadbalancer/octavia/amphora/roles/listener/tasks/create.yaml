@@ -1,0 +1,19 @@
+---
+- name: Create listeners vLB
+  openstack.cloud.lb_listener:
+    auth:
+      auth_url: "{{ auth_url }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      project_name: "{{ project_name | default('admin') }}"
+      user_domain_name: "{{ user_domain_name | default('Default') }}"
+      project_domain_name: "{{ project_domain_name | default('Default') }}"
+    name: "{{ lb_listener.name }}"
+    loadbalancer: "{{ loadbalancer.name }}"
+    protocol_port: "{{ lb_listener.protocol_port }}"
+    default_pool: "{{ lb_listener.pool_name }}"
+    protocol: "{{ 'TCP' if lb_listener.protocol == 'TCP' else
+                  'UDP' if lb_listener.protocol == 'UDP' else
+                  'HTTP' if lb_listener.protocol == 'HTTP' else
+                  'TERMINATED_HTTPS' if lb_listener.protocol == 'HTTPS' }}"
+    state: present

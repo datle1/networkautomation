@@ -1,0 +1,45 @@
+---
+- name: Create a vLB Openstack
+  openstack.cloud.loadbalancer:
+    auth:
+      auth_url: "{{ auth_url }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      project_name: "{{ project_name | default('admin') }}"
+      user_domain_name: "{{ user_domain_name | default('Default') }}"
+      project_domain_name: "{{ project_domain_name | default('Default') }}"
+    name: "{{ loadbalancer.name }}"
+    vip_network: "{{ loadbalancer.network_id }}"
+    vip_address: "{{ loadbalancer.address | default(omit) }}"
+    state: present
+    timeout: 1300
+  tags:
+    - loadbalancer
+
+- include_role:
+    name: pool
+    apply:
+      tags:
+        - loadbalancer
+        - pool
+  loop: "{{ loadbalancer.pools }}"
+  loop_control:
+    loop_var: lb_pool
+  tags:
+    - loadbalancer
+    - pool
+    - healthmonitor
+    - member
+
+- include_role:
+    name: listener
+    apply:
+      tags:
+        - loadbalancer
+        - listener
+  loop: "{{ loadbalancer.listeners }}"
+  loop_control:
+    loop_var: lb_listener
+  tags:
+    - loadbalancer
+    - listener

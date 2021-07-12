@@ -1,10 +1,5 @@
-- name: Delete a vLB Openstack
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  tasks:
-  - name: Delete a vLB Openstack
-    openstack.cloud.loadbalancer:
+  - name: Delete health monitor vLB
+    openstack.cloud.lb_health_monitor:
       auth:
         auth_url: "{{ auth_url }}"
         username: "{{ username }}"
@@ -12,7 +7,9 @@
         project_name: "{{ project_name | default('admin') }}"
         user_domain_name: "{{ user_domain_name | default('Default') }}"
         project_domain_name: "{{ project_domain_name | default('Default') }}"
-      name: "{{ loadbalancer.name }}"
-      vip_network: "{{ loadbalancer.network_id }}"
-      vip_address: "{{ loadbalancer.address | default(omit) }}"
+      name: "{{ health.name }}"
+      pool: "{{ lb_pool.name }}"
+      delay: "{{ health.delay }}"
+      resp_timeout: "{{ health.timeout }}"
+      max_retries: "{{ health.retry_up }}"
       state: absent

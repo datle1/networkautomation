@@ -1,0 +1,14 @@
+{
+    "template_info": {
+        "description": "Template to configure vloadbalancer octavia openstack",
+        "version": "1.1.2",
+        "authors": ["cuongnq24"],
+        "supported_elements": [
+            "loadbalancer",
+            "listener",
+            "pool",
+            "member",
+            "healthmonitor"
+        ]
+    }
+}

@@ -1,0 +1,22 @@
+- name: Create health monitor vLB
+  openstack.cloud.lb_health_monitor:
+    auth:
+      auth_url: "{{ auth_url }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      project_name: "{{ project_name | default('admin') }}"
+      user_domain_name: "{{ user_domain_name | default('Default') }}"
+      project_domain_name: "{{ project_domain_name | default('Default') }}"
+    name: "{{ health.name }}"
+    admin_state_up: "{{ health.admin_state_up }}"
+    pool: "{{ lb_pool.name }}"
+    type: "{{ 'PING' if health.protocol == 'ICMP' else
+              'UDP-CONNECT' if health.protocol == 'UDP' else
+              'TCP' if health.protocol == 'TCP' else
+              'HTTP' if health.protocol == 'HTTP' else
+              'HTTPS' if health.protocol == 'HTTPS' }}"
+    delay: "{{ health.delay }}"
+    resp_timeout: "{{ health.timeout }}"
+    max_retries: "{{ health.retry_up }}"
+    max_retries_down: "{{ health.retry_down }}"
+    state: present
