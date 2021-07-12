@@ -79,7 +79,7 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task BACKUP: Timeout]'),
+        self.assertEqual((False, '[Task BACKUP: Timeout after 1 seconds]'),
                         (result, error))
 
     def test_execute_ansible_job_timeout_apply(self):
@@ -105,7 +105,8 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task APPLY: Timeout]'), (result, error))
+        self.assertEqual((False, '[Task APPLY: Timeout after 1 seconds]'),
+                         (result, error))
 
     def test_execute_ansible_job_timeout_verify(self):
         playbooks = {
@@ -130,7 +131,8 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task VERIFY: Timeout]'), (result, error))
+        self.assertEqual((False, '[Task VERIFY: Timeout after 1 seconds]'),
+                         (result, error))
 
     def test_execute_ansible_job_timeout_rollback(self):
         playbooks = {
@@ -156,8 +158,9 @@ class FunctionalTest(TestCase):
             print('Ansible job is successful')
         else:
             print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task APPLY: Timeout, '
-                                 'Task ROLLBACK: Timeout]'), (result, error))
+        self.assertEqual((False, '[Task APPLY: Timeout after 1 seconds, '
+                                 'Task ROLLBACK: Timeout after 1 seconds]'),
+                         (result, error))
 
     def test_execute_ansible_napalm(self):
         playbooks = {
@@ -273,11 +276,9 @@ class FunctionalTest(TestCase):
             print('The job is successful')
         else:
             print('The job is failed. Reason: ' + error)
-        self.assertEqual((False, "[Task APPLY: {'msg': 'missing required arguments: ansible_host, "
-                                 "ansible_password, ansible_port, ansible_username', 'invocation': "
-                                 "{'module_args': {'name': 'hm1', 'timeout': '2', 'interval': '5', 'up_retry': "
-                                 "'3', 'retry': '4', 'state': 'present'}}, '_ansible_no_log': False, "
-                                 "'changed': False}]"),
+        self.assertEqual((False,  '[Task APPLY: {\'msg\': "\'loadbalancer\' '
+                                  'is undefined", \'_ansible_no_log\': '
+                                  'False}]'),
                          (result, error))
 
     @unittest.skip
