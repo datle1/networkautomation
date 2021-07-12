@@ -53,12 +53,6 @@ module load-balancer {
         }
       }
 
-      leaf project-id {
-        description
-          "The ID of the project owning this resource.";
-        type string;
-      }
-
       leaf address {
         description
           "The IP address of the loadbalancer";
