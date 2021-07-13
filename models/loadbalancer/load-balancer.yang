@@ -36,7 +36,7 @@ module load-balancer {
     grouping loadbalancer-attributes {
       description "Load balancer attributes.";
       uses admin-state-up;
-      
+
       leaf name {
         description
           "Name of the load balancer";
@@ -67,7 +67,7 @@ module load-balancer {
           leaf port-id {
             description
               "Providing a neutron port ID for the vip_port_id tells octavia to use this port for the VIP";
-            type string;    
+            type string;
           }
         }
         case subnet {
@@ -115,14 +115,14 @@ module load-balancer {
         }
       }
 
-      leaf-list pools {
+      leaf pool-name {
         description
-          "List of pools that belong to the listener.";
+          "Name of pool used by the listener.";
         type string;
       }
 
       leaf connection-limit {
-        description 
+        description
           "Maximum connections this load balancer can have. Default is infinite.";
         type int32 {
           range -1..65535;
@@ -187,7 +187,7 @@ module load-balancer {
       }
 
       leaf weight {
-        description 
+        description
           "Weight of member.";
         type uint16 {
           range 0..256;
@@ -219,13 +219,13 @@ module load-balancer {
       }
 
       leaf delay {
-        description 
+        description
           "The interval, in seconds, between health checks.";
         type uint32;
       }
 
       leaf timeout {
-        description 
+        description
           "The time, in seconds, after which a health check times out.";
         type uint32;
       }
@@ -253,12 +253,12 @@ module load-balancer {
         uses loadbalancer-attributes;
 
         list listeners {
-          key "name";            
+          key "name";
           uses listener-attributes;
         }
 
         list pools {
-          key "name";            
+          key "name";
           uses pool-attributes;
           list members {
             key "name";
@@ -268,6 +268,6 @@ module load-balancer {
             uses healthmonitor-attributes;
           }
         }
-      }      
+      }
     }
 }

@@ -27,7 +27,7 @@ class yc_listeners_network_models__loadbalancer_listeners(PybindBase):
   the container is represented as a class variable - with a specific
   YANG type.
   """
-  __slots__ = ('_path_helper', '_extmethods', '__admin_state_up','__name','__protocol','__protocol_port','__pools','__connection_limit',)
+  __slots__ = ('_path_helper', '_extmethods', '__admin_state_up','__name','__protocol','__protocol_port','__pool_name','__connection_limit',)
 
   _yang_name = 'listeners'
 
@@ -42,7 +42,7 @@ class yc_listeners_network_models__loadbalancer_listeners(PybindBase):
     self.__name = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     self.__protocol = YANGDynClass(base=RestrictedClassType(base_type=six.text_type,                                     restriction_type="dict_key",                                     restriction_arg={'UDP': {}, 'TCP': {}, 'HTTP': {}, 'HTTPS': {}},), default=six.text_type("HTTP"), is_leaf=True, yang_name="protocol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='enumeration', is_config=True)
     self.__protocol_port = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={'range': ['0..65535']}), is_leaf=True, yang_name="protocol-port", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='uint16', is_config=True)
-    self.__pools = YANGDynClass(unique=True, base=TypedListType(allowed_type=six.text_type), is_leaf=False, yang_name="pools", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
+    self.__pool_name = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="pool-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     self.__connection_limit = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=long, restriction_dict={'range': ['-2147483648..2147483647']}, int_size=32), restriction_dict={'range': ['-1..65535']}), default=RestrictedClassType(base_type=long, restriction_dict={'range': ['-2147483648..2147483647']}, int_size=32)(-1), is_leaf=True, yang_name="connection-limit", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='int32', is_config=True)
 
     load = kwargs.pop("load", None)
@@ -225,41 +225,41 @@ class yc_listeners_network_models__loadbalancer_listeners(PybindBase):
     self.__protocol_port = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={'range': ['0..65535']}), is_leaf=True, yang_name="protocol-port", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='uint16', is_config=True)
 
 
-  def _get_pools(self):
+  def _get_pool_name(self):
     """
-    Getter method for pools, mapped from YANG variable /loadbalancer/listeners/pools (string)
+    Getter method for pool_name, mapped from YANG variable /loadbalancer/listeners/pool_name (string)
 
-    YANG Description: List of pools that belong to the listener.
+    YANG Description: Name of pool used by the listener.
     """
-    return self.__pools
+    return self.__pool_name
       
-  def _set_pools(self, v, load=False):
+  def _set_pool_name(self, v, load=False):
     """
-    Setter method for pools, mapped from YANG variable /loadbalancer/listeners/pools (string)
+    Setter method for pool_name, mapped from YANG variable /loadbalancer/listeners/pool_name (string)
     If this variable is read-only (config: false) in the
-    source YANG file, then _set_pools is considered as a private
+    source YANG file, then _set_pool_name is considered as a private
     method. Backends looking to populate this variable should
-    do so via calling thisObj._set_pools() directly.
+    do so via calling thisObj._set_pool_name() directly.
 
-    YANG Description: List of pools that belong to the listener.
+    YANG Description: Name of pool used by the listener.
     """
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,unique=True, base=TypedListType(allowed_type=six.text_type), is_leaf=False, yang_name="pools", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
+      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="pool-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
-          'error-string': """pools must be of a type compatible with string""",
+          'error-string': """pool_name must be of a type compatible with string""",
           'defined-type': "string",
-          'generated-type': """YANGDynClass(unique=True, base=TypedListType(allowed_type=six.text_type), is_leaf=False, yang_name="pools", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)""",
+          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="pool-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)""",
         })
 
-    self.__pools = t
+    self.__pool_name = t
     if hasattr(self, '_set'):
       self._set()
 
-  def _unset_pools(self):
-    self.__pools = YANGDynClass(unique=True, base=TypedListType(allowed_type=six.text_type), is_leaf=False, yang_name="pools", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
+  def _unset_pool_name(self):
+    self.__pool_name = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="pool-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='networkautomation:yang:network-functions', defining_module='network-models', yang_type='string', is_config=True)
 
 
   def _get_connection_limit(self):
@@ -302,11 +302,11 @@ class yc_listeners_network_models__loadbalancer_listeners(PybindBase):
   name = __builtin__.property(_get_name, _set_name)
   protocol = __builtin__.property(_get_protocol, _set_protocol)
   protocol_port = __builtin__.property(_get_protocol_port, _set_protocol_port)
-  pools = __builtin__.property(_get_pools, _set_pools)
+  pool_name = __builtin__.property(_get_pool_name, _set_pool_name)
   connection_limit = __builtin__.property(_get_connection_limit, _set_connection_limit)
 
 
-  _pyangbind_elements = OrderedDict([('admin_state_up', admin_state_up), ('name', name), ('protocol', protocol), ('protocol_port', protocol_port), ('pools', pools), ('connection_limit', connection_limit), ])
+  _pyangbind_elements = OrderedDict([('admin_state_up', admin_state_up), ('name', name), ('protocol', protocol), ('protocol_port', protocol_port), ('pool_name', pool_name), ('connection_limit', connection_limit), ])
 
 
 class yc_members_network_models__loadbalancer_pools_members(PybindBase):
