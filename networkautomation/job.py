@@ -19,11 +19,10 @@ def kill(pid):
         print('Killed process maybe exited: ' + str(ex))
 
 
-def run_single_process(driver, state, target, templates, action, element,
-                       input_vars, child_conn):
+def run_single_process(driver, state, target, job_type, data_model, child_conn,
+                       **kwargs):
     try:
-        error = driver.execute(state, target, templates, action, element,
-            input_vars)
+        error = driver.execute(state, target, job_type, data_model, **kwargs)
         if error:
             child_conn.send(str(error))
         else:
@@ -51,31 +50,26 @@ class TaskResult:
 
 class Job:
     def __init__(self, job_type: JobType, target: NetworkFunction,
-                 driver_type: DriverType = None, templates=None, job_id=None,
-                 action: ActionType = None,  element=None, input_vars=None):
-        self.id = job_id or utils.gen_uuid()
+                 model: dict, **kwargs):
+        self.id = utils.gen_uuid()
         self.job_type = job_type
         self.target = target
-        self.templates = templates
-        self.state = JobState.INIT
-        self.driver_type = driver_type
         self.error = []
-        self.element = element
-        self.action = action
         self.driver = None
-        self.vars = input_vars
         self.pid = None
-
-        # if self.vars:
-        #     data_model.DataModel.validate_data(self.vars)
-
+        self.data_model = model
+        self.state = JobState.INIT
+        self.kwargs = kwargs
+        self.driver_type = self.kwargs.get('driver_type')
+        # data_model.DataModel.validate_data(self.data_model)
         self.driver = driver_manager.get_driver(self.driver_type,
-            self.target, self.element)
+                                                self.target,
+                                                self.kwargs.get('element'))
 
     def execute(self, timeout):
         if not self.driver:
             self.error.append(TaskResult(self.state.value,
-                TaskResult.TASK_DRIVER_NOT_FOUND))
+                                         TaskResult.TASK_DRIVER_NOT_FOUND))
             return False, str(self.error)
         if self.run_task(JobState.BACKUP, timeout) \
                 and self.run_task(JobState.APPLY, timeout) \
@@ -93,10 +87,10 @@ class Job:
         self.state = state
         parent_conn, child_conn = multiprocessing.Pipe()
         p = multiprocessing.Process(target=run_single_process,
+                                    kwargs=self.kwargs,
                                     args=(self.driver, self.state.value,
-                                          self.target, self.templates,
-                                          self.action, self.element,
-                                          self.vars, child_conn))
+                                          self.target, self.job_type,
+                                          self.data_model, child_conn))
         p.start()
         self.pid = p.pid
         p.join(timeout=timeout)
@@ -104,7 +98,7 @@ class Job:
             # Timeout then, terminate process
             print("Task is timeout after " + str(timeout))
             self.error.append(TaskResult(self.state.value,
-                              TaskResult.TASK_TIMEOUT + ' after ' +
+                                         TaskResult.TASK_TIMEOUT + ' after ' +
                                          str(timeout) + ' seconds'))
             self.terminate()
         else:

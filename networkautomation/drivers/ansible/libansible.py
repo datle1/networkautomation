@@ -77,13 +77,10 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def execute_playbook(playbook, host, config, input_vars=None, tag=None):
+def execute_playbook(playbook, host, config, input_vars=None, tags=None):
     ansible_utils.create_inventory(host, config, 'all',
                                    ansible_utils.INVENTORY_FILE)
     loader = DataLoader()
-    tags = []
-    if tag:
-        tags.append(tag)
     context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
                                     module_path=None, verbosity=True,

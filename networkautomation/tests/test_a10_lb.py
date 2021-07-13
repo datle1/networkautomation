@@ -69,11 +69,11 @@ class A10LoadBalancerTest(TestCase):
                         'provider': 'a10',
                         'vip_network_input': ''}
 
-        success, message = self.job_mgr.execute_job(common.JobType.USE_ACTION,
-                                                    target=self.target,
+        success, message = self.job_mgr.execute_job(target=self.target,
+                                                    data_model={'loadbalancer':
+                                                                    loadbalancer},
                                                     action=common.ActionType.CREATE,
                                                     element='loadbalancer',
-                                                    input_vars={'loadbalancer': loadbalancer},
                                                     timeout=1000)
         self.assertEqual(success, True)
 
@@ -89,11 +89,11 @@ class A10LoadBalancerTest(TestCase):
                                    'protocol_port': 80}],
                         'provider': 'a10'}
 
-        success, message = self.job_mgr.execute_job(common.JobType.USE_ACTION,
-                                                    target=self.target,
+        success, message = self.job_mgr.execute_job(target=self.target,
+                                                    data_model={'loadbalancer':
+                                                                    loadbalancer},
                                                     action=common.ActionType.CREATE,
                                                     element='member',
-                                                    input_vars={'loadbalancer': loadbalancer},
                                                     timeout=1000)
         self.assertEqual(success, True)
 
@@ -109,11 +109,11 @@ class A10LoadBalancerTest(TestCase):
                                    'protocol_port': 80}],
                         'provider': 'a10'}
 
-        success, message = self.job_mgr.execute_job(common.JobType.USE_ACTION,
-                                                    target=self.target,
+        success, message = self.job_mgr.execute_job(target=self.target,
+                                                    data_model={'loadbalancer':
+                                                                    loadbalancer},
                                                     action=common.ActionType.DELETE,
                                                     element='member',
-                                                    input_vars={'loadbalancer': loadbalancer},
                                                     timeout=1000)
         self.assertEqual(success, True)
 
@@ -156,10 +156,10 @@ class A10LoadBalancerTest(TestCase):
                         'provider': 'a10',
                         'vip_network_input': ''}
 
-        success, message = self.job_mgr.execute_job(common.JobType.USE_ACTION,
-                                                    target=self.target,
+        success, message = self.job_mgr.execute_job(target=self.target,
+                                                    data_model={'loadbalancer':
+                                                                    loadbalancer},
                                                     action=common.ActionType.DELETE,
                                                     element='loadbalancer',
-                                                    input_vars={'loadbalancer': loadbalancer},
                                                     timeout=1000)
         self.assertEqual(success, True)

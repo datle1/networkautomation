@@ -1,41 +1,29 @@
 import time
 
-from networkautomation.common import JobState
+from networkautomation.common import JobState, DriverType, JobType, ActionType
 from networkautomation import job
+from networkautomation.network_function import NetworkFunction
 
 """Network Automation Framework
    Exposed module to executing network automation jobs.
-    - Option 1: Executing scenario in template 
-        job_manager.execute_job(USE_TEMPLATE, target,
-                                driver_type, templates[BACKUP, APPLY, VERIFY, ROLLBACK])
-    - Option 2: Executing action with specified element
-        job_manager.execute_job(USE_ACTION, target,
-                                action, element)
 """
-class JobManager:
+
+
+class BaseJobManager:
     JOB_POOL = {}
     DEFAULT_JOB_TIMEOUT = 3 * 60  # seconds
 
-    def execute_job(self, job_type, target,
-                    driver_type=None, templates=None,
-                    action=None, element=None,
-                    input_vars=None, timeout=DEFAULT_JOB_TIMEOUT):
-        my_job = job.Job(job_type, target, driver_type=driver_type,
-                         templates=templates, action=action, element=element,
-                         input_vars=input_vars)
+    def execute_job(self, job_type, target, data_model,
+                    timeout=DEFAULT_JOB_TIMEOUT, **kwargs):
+        my_job = job.Job(job_type, target, data_model, **kwargs)
         if my_job:
             self.JOB_POOL[my_job.id] = my_job
             return my_job.execute(timeout)
         else:
             return False, 'Error: can not init job'
 
-    def register_job(self, job_type, target,
-                     driver_type=None, templates=None,
-                     action=None, element=None,
-                     input_vars=None):
-        my_job = job.Job(job_type, target, driver_type=driver_type,
-                         templates=templates, action=action, element=element,
-                         input_vars=input_vars)
+    def register_job(self, job_type, target, data_model, **kwargs):
+        my_job = job.Job(job_type, target, data_model, **kwargs)
         if my_job:
             self.JOB_POOL[my_job.id] = my_job
             return my_job.id
@@ -76,3 +64,29 @@ class JobManager:
             my_job = self.JOB_POOL.get(job_id)
             status = my_job.status.value
         return status
+
+
+class JobManager(BaseJobManager):
+    def execute_job(self, target: NetworkFunction, data_model: dict,
+                    timeout: int = None, action: ActionType = None,
+                    element: str = None):
+        return super(JobManager, self).execute_job(JobType.USE_ACTION, target,
+                                                   data_model, timeout,
+                                                   action=action,
+                                                   element=element)
+
+
+class AnsibleJobManager(BaseJobManager):
+    def execute_job(self, target: NetworkFunction, data_model: dict,
+                    timeout: int = None, backup_template: str = None,
+                    apply_template: str = None, verify_template: str = None,
+                    rollback_template: str = None, tags: list = None,
+                    extra_vars: dict = None):
+        return super().execute_job(JobType.USE_TEMPLATE, target, data_model,
+                                   timeout, driver_type=DriverType.ANSIBLE,
+                                   backup_template=backup_template,
+                                   apply_template=apply_template,
+                                   verify_template=verify_template,
+                                   rollback_template=rollback_template,
+                                   tags=tags,
+                                   extra_vars=extra_vars)
