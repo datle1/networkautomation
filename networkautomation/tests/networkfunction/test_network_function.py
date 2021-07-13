@@ -2,7 +2,6 @@ from unittest import TestCase
 
 from networkautomation import network_function
 
-
 NF = network_function.NetworkFunction(
     'vloadbalancer',
     'openstack',
@@ -12,6 +11,7 @@ NF = network_function.NetworkFunction(
      'password': 'admin'},
     '10.10.10.10'
 )
+
 
 class TestNetworkFunction(TestCase):
     def test_serialize(self):

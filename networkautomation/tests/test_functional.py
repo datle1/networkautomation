@@ -10,9 +10,9 @@ class FunctionalTest(TestCase):
                                                 'openstack',
                                                 'octavia',
                                                 '2.0',
-                                                {'username': 'admin',
-                                                 'password': 'admin'},
-                                                '127.0.0.1')
+                                                '127.0.0.1',
+                                                ssh_user='admin',
+                                                ssh_pass='password')
 
     def test_execute_ansible_job(self):
         data_model = {'load_balancer': {'name': 'vLB'}}
@@ -105,8 +105,6 @@ class FunctionalTest(TestCase):
                                                   'arista',
                                                   'eos',
                                                   '4.0',
-                                                  {'username': 'admin',
-                                                   'password': 'admin'},
                                                   '127.0.0.1')
         result, error = AnsibleJobManager().execute_job(
             target, data_model, apply_template='playbooks/napalm.yaml')
@@ -122,8 +120,6 @@ class FunctionalTest(TestCase):
                                                   'arista',
                                                   'eos',
                                                   '4.0',
-                                                  {'username': 'admin',
-                                                   'password': 'admin'},
                                                   '127.0.0.1')
         result, error = AnsibleJobManager().execute_job(
             target, data_model, apply_template='playbooks/ntc.yaml')
@@ -154,8 +150,6 @@ class FunctionalTest(TestCase):
                                                   'a10',
                                                   'acos',
                                                   '2.2',
-                                                  {'username': 'admin',
-                                                   'password': 'admin'},
                                                   '10.10.10.11')
         data_model = {'load_balancer': {
             'listeners': [{'name': 'ls1',

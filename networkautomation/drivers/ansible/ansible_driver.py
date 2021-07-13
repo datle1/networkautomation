@@ -10,14 +10,13 @@ class AnsibleDriver(DriverBase):
     def __init__(self, nf: NetworkFunction, element: str = None,
                  driver_name: str = None):
         super().__init__(nf, element, driver_name)
-        if nf.credential:
-            self.config = nf.credential
-            if nf.credential.get('ssh-username'):
-                self.config['ansible_ssh_user'] = nf.credential['ssh-username']
-                self.config.pop('ssh-username')
-            if nf.credential.get('ssh-password'):
-                self.config['ansible_ssh_pass'] = nf.credential['ssh-password']
-                self.config.pop('ssh-password')
+        self.config = {}
+        if nf.other_auth_info:
+            self.config = nf.other_auth_info
+        if nf.ssh_user:
+            self.config['ansible_ssh_user'] = nf.ssh_user
+        if nf.ssh_pass:
+            self.config['ansible_ssh_pass'] = nf.ssh_pass
 
     def execute(self, event, target, job_type, data_model, **kwargs):
         print('===========================================\n'

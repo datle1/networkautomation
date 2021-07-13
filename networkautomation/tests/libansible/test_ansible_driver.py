@@ -9,9 +9,15 @@ class TestAnsibleDriver(TestCase):
                                                   'openstack',
                                                   'octavia',
                                                   '2.0',
-                                                  {'auth_url': 'url',
-                                                   'ssh-password': 'admin'},
-                                                  'localhost')
+                                                  'localhost',
+                                                  ssh_user='admin',
+                                                  ssh_pass='password',
+                                                  other_auth_info={
+                                                      'auth_url': 'url',
+                                                      'domain': 'default'})
         ad = AnsibleDriver(target)
-        expect = {'ansible_ssh_pass': 'admin', 'auth_url': 'url'}
+        expect = {'ansible_ssh_pass': 'password',
+                  'ansible_ssh_user': 'admin',
+                  'auth_url': 'url',
+                  'domain': 'default'}
         self.assertEqual(ad.config, expect)

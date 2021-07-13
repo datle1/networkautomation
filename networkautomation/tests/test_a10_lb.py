@@ -27,7 +27,7 @@ class A10LoadBalancerTest(TestCase):
         creds, mgmt_ip, _ = creds_from_env()
         self.target = network_function.NetworkFunction(nf_type='loadbalancer', vendor='a10', os='acos',
                                                        version=None, mgmt_ip=mgmt_ip,
-                                                       credential=creds)
+                                                       other_auth_info=creds)
         self.job_mgr = job_manager.JobManager()
 
     @unittest.skipIf(skip_test, 'Ansible variables are not provided.')
