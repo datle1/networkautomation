@@ -4,7 +4,7 @@
   hosts: all
   connection: local
   tasks:
-    - name: Read file "{{ load_balancer['network-id'] }}"
+    - name: Read file "{{ load_balancer['name'] }}"
       debug: var=item
       with_file:
-        - "{{ load_balancer['network-id'] }}"
+        - "{{ load_balancer['name'] }}"

@@ -67,7 +67,7 @@ def create_inventory(host, config, group, inventory_path=INVENTORY_FILE):
     h1 = host + ' ansible_python_interpreter="/usr/bin/env python3" '
     if config:
         for k, v in config.items():
-            h1 += k + '=' + v + ' '
+            h1 += k + '=' + str(v) + ' '
     with open(inventory_path, 'w') as f:
         f.write('[{}]\n'.format(group))
         f.write(h1)
