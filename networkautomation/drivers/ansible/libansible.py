@@ -52,9 +52,11 @@ class PlayBookResultsCollector(CallbackBase):
 
     def getPlaybookResult(self):
         if self.status_no_hosts:
-            results = {'msg': "Could not match supplied host pattern", 'flag': False, 'executed': False}
+            results = {'msg': "Could not match supplied host pattern",
+                       'flag': False, 'executed': False}
             return results
-        results_info = {'skipped': {}, 'failed': {}, 'success': {}, "status": {}, 'unreachable': {}, "changed": {}}
+        results_info = {'skipped': {}, 'failed': {}, 'success': {},
+                        "status": {}, 'unreachable': {}, "changed": {}}
         for host, result in self.task_ok.items():
             results_info['success'][host] = result._result
         for host, result in self.task_failed.items():
@@ -77,16 +79,19 @@ class PlaybookResult(Enum):
     RUN_UNKNOWN_ERROR = 255
 
 
-def execute_playbook(playbook, host, config, input_vars=None, tags=None):
+def execute_playbook(playbook, host, config, input_vars=None, tags=None,
+                     stdout=False):
     ansible_utils.create_inventory(host, config, 'all',
                                    ansible_utils.INVENTORY_FILE)
     loader = DataLoader()
+    tags = tags or []
     context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
                                     listhosts=False, syntax=False,
                                     module_path=None, verbosity=True,
                                     check=False, start_at_task=None,
                                     forks=1)
-    inventory = InventoryManager(loader=loader, sources=ansible_utils.INVENTORY_FILE)
+    inventory = InventoryManager(loader=loader,
+                                 sources=ansible_utils.INVENTORY_FILE)
     variable_manager = VariableManager(loader=loader, inventory=inventory)
     if input_vars:
         variable_manager.extra_vars.update(input_vars)
@@ -96,19 +101,26 @@ def execute_playbook(playbook, host, config, input_vars=None, tags=None):
                                 variable_manager=variable_manager,
                                 loader=loader,
                                 passwords=None)
+    results_callback = None
+    playbook_result = None
     try:
-        results_callback = PlayBookResultsCollector()
-        executor._tqm._stdout_callback = results_callback
+        if not stdout:
+            results_callback = PlayBookResultsCollector()
+            executor._tqm._stdout_callback = results_callback
         results = executor.run()
-        playbook_result = results_callback.getPlaybookResult()
+        if results_callback:
+            playbook_result = results_callback.getPlaybookResult()
         msg = PlaybookResult(results)
         if msg == PlaybookResult.RUN_OK:
             return True, None
         elif msg == PlaybookResult.RUN_FAILED_HOSTS:
-            failed_result = playbook_result["failed"][host]._result
-            return False, failed_result
-        else:
-            return False, msg
+            if playbook_result:
+                failed_result = 'Error: ' + \
+                                str(playbook_result["failed"][host]._result)
+                failed_task = 'Ansible task: ' + \
+                              str(playbook_result["failed"][host].task_name)
+                return False, failed_task + '. ' + failed_result
+        return False, msg
     except AnsibleError as err:
         print(err.message)
         executor._tqm.cleanup()

@@ -45,7 +45,7 @@ class TaskResult:
         self.err = err
 
     def __repr__(self) -> str:
-        return 'Task ' + self.name + ': ' + self.err
+        return 'Task ' + self.name + ' - ' + self.err
 
 
 class Job:

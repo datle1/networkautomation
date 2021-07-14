@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock
-from networkautomation.drivers.ansible import ansible_utils
+from networkautomation.drivers.ansible import ansible_utils, libansible
 
 ansible_cfg_path = "ansible.cfg"
 inventory_path = "inventory"
@@ -51,3 +52,34 @@ class LibansibileTest(TestCase):
                  'python3" ansible_ssh_user=admin ansible_ssh_pass=admin ' \
                  'vim_url=abc '
         self.assertEqual(content, expect)
+
+    def test_run_playbook(self):
+        loadbalancer_model = {'load_balancer': {'name': 'vLB'}}
+        playbook = '---\n' \
+                   '- name: Test job apply\n' \
+                   '  gather_facts: false\n' \
+                   '  hosts: all\n' \
+                   '  connection: local\n' \
+                   '  tasks:\n' \
+                   '    - name: Touch a file "{{ load_balancer.name }}"\n' \
+                   '      file:\n' \
+                   '        path: "{{ load_balancer.name }}"\n' \
+                   '        state: touch\n' \
+                   '    - name: Verify\n' \
+                   '      shell: "ls -l {{ load_balancer.name }}"\n' \
+                   '      register: playbook_path_output\n' \
+                   '    - debug: var=playbook_path_output.stdout\n' \
+                   '    - name: Remove file (delete file)\n' \
+                   '      file:\n' \
+                   '        path: "{{ load_balancer.name }}"\n' \
+                   '        state: absent'
+        file = 'try.yaml'
+        with open(file, 'w') as f:
+            f.write(playbook)
+        res, error = libansible.execute_playbook(file,
+                                                 '127.0.0.1',
+                                                 None,
+                                                 input_vars=loadbalancer_model,
+                                                 stdout=True)
+        os.remove(file)
+        self.assertEqual((True, None), (res, error))

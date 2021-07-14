@@ -47,10 +47,6 @@ class FunctionalTest(TestCase):
         result, error = AnsibleJobManager().execute_job(
             target, data_model, timeout=180,
             apply_template='playbooks/apply.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((True, None), (result, error))
 
     def test_execute_rest_job(self):
@@ -59,11 +55,7 @@ class FunctionalTest(TestCase):
         result, error = JobManager().execute_job(
             target, data_model, action=common.ActionType.CREATE,
             element='vlan_config')
-        if result:
-            print('Rest job is successful')
-        else:
-            print('Rest job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task INIT: Driver is not found]'),
+        self.assertEqual((False, '[Task INIT - Driver is not found]'),
                          (result, error))
 
     def test_execute_ansible_job_timeout_backup(self):
@@ -72,11 +64,7 @@ class FunctionalTest(TestCase):
         result, error = AnsibleJobManager().execute_job(
             target, data_model, timeout=1,
             backup_template='playbooks/timeout.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task BACKUP: Timeout after 1 seconds]'),
+        self.assertEqual((False, '[Task BACKUP - Timeout after 1 seconds]'),
                          (result, error))
 
     def test_execute_ansible_job_timeout_apply(self):
@@ -85,11 +73,7 @@ class FunctionalTest(TestCase):
         result, error = AnsibleJobManager().execute_job(
             target, data_model, timeout=1,
             apply_template='playbooks/timeout.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task APPLY: Timeout after 1 seconds]'),
+        self.assertEqual((False, '[Task APPLY - Timeout after 1 seconds]'),
                          (result, error))
 
     def test_execute_ansible_job_timeout_verify(self):
@@ -98,11 +82,7 @@ class FunctionalTest(TestCase):
         result, error = AnsibleJobManager().execute_job(
             target, data_model, timeout=1,
             verify_template='playbooks/timeout.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task VERIFY: Timeout after 1 seconds]'),
+        self.assertEqual((False, '[Task VERIFY - Timeout after 1 seconds]'),
                          (result, error))
 
     def test_execute_ansible_job_timeout_rollback(self):
@@ -112,12 +92,8 @@ class FunctionalTest(TestCase):
             target, data_model, timeout=1,
             apply_template='playbooks/timeout.yaml',
             rollback_template='playbooks/timeout.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task APPLY: Timeout after 1 seconds, '
-                                 'Task ROLLBACK: Timeout after 1 seconds]'),
+        self.assertEqual((False, '[Task APPLY - Timeout after 1 seconds, '
+                                 'Task ROLLBACK - Timeout after 1 seconds]'),
                          (result, error))
 
     def test_execute_ansible_napalm(self):
@@ -125,10 +101,6 @@ class FunctionalTest(TestCase):
         target = self.target_common
         result, error = AnsibleJobManager().execute_job(
             target, data_model, apply_template='playbooks/napalm.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((True, None), (result, error))
 
     def test_execute_ansible_ntc(self):
@@ -136,10 +108,6 @@ class FunctionalTest(TestCase):
         target = self.target_common
         result, error = AnsibleJobManager().execute_job(
             target, data_model, apply_template='playbooks/ntc.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((True, None), (result, error))
 
     def test_execute_ansible_job_module_failed(self):
@@ -147,12 +115,8 @@ class FunctionalTest(TestCase):
         target = self.target_octavia
         result, error = AnsibleJobManager().execute_job(
             target, data_model, apply_template='playbooks/error_open_file.yaml')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
-        err = "[Task APPLY: {'msg': 'could not locate file in lookup: " \
-              "vLB', '_ansible_no_log': None}]"
+        err = "[Task APPLY - Ansible task: Read file. Error: {'msg': 'could " \
+              "not locate file in lookup: vLB', '_ansible_no_log': None}]"
         self.assertEqual((False, err), (result, error))
 
     @mock.patch.object(DriverFactory, 'get_driver_dir')
@@ -163,13 +127,9 @@ class FunctionalTest(TestCase):
         result, error = JobManager().execute_job(
             target, data_model, action=common.ActionType.CREATE,
             element='loadbalancer')
-        if result:
-            print('The job is successful')
-        else:
-            print('The job is failed. Reason: ' + error)
-        self.assertEqual((False, '[Task APPLY: {\'msg\': "\'loadbalancer\' '
-                                 'is undefined", \'_ansible_no_log\': '
-                                 'False}]'),
+        self.assertEqual((False, '[Task APPLY - Ansible task: include_role : '
+                                 'pool. Error: {\'msg\': "\'loadbalancer\' is '
+                                 'undefined", \'_ansible_no_log\': False}]'),
                          (result, error))
 
     @mock.patch.object(DriverFactory, 'get_driver_dir')
@@ -180,12 +140,10 @@ class FunctionalTest(TestCase):
         result, error = JobManager().execute_job(
             target, data_model, action=common.ActionType.CREATE,
             element='loadbalancer')
-        if result:
-            print('Ansible job is successful')
-        else:
-            print('Ansible job is failed. Reason: ' + error)
         self.assertEqual((False,
-                          '[Task APPLY: {\'msg\': "The task includes an option with an undefined '
+                          '[Task APPLY - Ansible task: Create a vLB '
+                          'Openstack. Error: {\'msg\': "The task includes an '
+                          'option with an undefined '
                           "variable. The error was: 'loadbalancer' is undefined\\n\\nThe error appears "
                           'to be in '
                           "'/home/nito/git/networkautomation/networkautomation/drivers/ansible/templates/loadbalancer/octavia/amphora/roles/loadbalancer/tasks/create.yaml': "
