@@ -56,7 +56,7 @@ def download_generate_ansible_cfg(config_file=None):
     with open(file_path, 'w') as f:
         f.write('[defaults]\n'
                 'host_key_checking=False\n'
-                'log_path=/var/log/ansible.log\n'
+                'log_path=/tmp/ansible.log\n'
                 'ansible_python_interpreter=\"/usr/bin/env python\"\n'
                 'action_plugins={}\n'
                 'library={}\n'

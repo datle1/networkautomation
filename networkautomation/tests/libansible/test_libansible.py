@@ -25,7 +25,7 @@ class LibansibileTest(TestCase):
         a10_acos_axapi_path = os.environ['HOME'] + '/.ansible/collections'
         expect = '[defaults]\n' \
                  'host_key_checking=False\n' \
-                 'log_path=/var/log/ansible.log\n' \
+                 'log_path=/tmp/ansible.log\n' \
                  'ansible_python_interpreter=\"/usr/bin/env python\"\n' \
                  'action_plugins={}/plugins/action:{}\n' \
                  'library={}/modules:{}:{}\n' \
@@ -79,7 +79,6 @@ class LibansibileTest(TestCase):
         res, error = libansible.execute_playbook(file,
                                                  '127.0.0.1',
                                                  None,
-                                                 input_vars=loadbalancer_model,
-                                                 stdout=True)
+                                                 input_vars=loadbalancer_model)
         os.remove(file)
         self.assertEqual((True, None), (res, error))
