@@ -1,10 +1,10 @@
 import os
 import subprocess
 import sys
+
 from setuptools import setup
 from setuptools import find_packages
 from setuptools.command.install import install
-from distutils.sysconfig import get_python_lib
 
 
 class NetworkAutomationInstaller(install):
@@ -22,15 +22,15 @@ class NetworkAutomationInstaller(install):
         import pyangbind
         pyangbind_path = os.path.dirname(pyangbind.__file__) + '/plugin'
         protoc_command = ["pyang",
-                        "-p",
-                        "models",
-                        "--plugindir",
-                        pyangbind_path,
-                        "-f",
-                        "pybind",
-                        "-o",
-                        working_dir + self.pymodel_file,
-                        working_dir + self.model_file]
+                          "-p",
+                          "models",
+                          "--plugindir",
+                          pyangbind_path,
+                          "-f",
+                          "pybind",
+                          "-o",
+                          working_dir + self.pymodel_file,
+                          working_dir + self.model_file]
         if subprocess.call(protoc_command) != 0:
             sys.exit(-1)
         install.run(self)
@@ -41,32 +41,28 @@ with open('requirements.txt') as f:
 print('Requirements: {}'.format(required))
 
 
-def find_data_files(sub_dir):
-    data_files = []
-    start_point = os.path.join('networkautomation', sub_dir)
-    python_dir = get_python_lib()
-    for root, dirs, files in os.walk(start_point):
-        root_files = [os.path.join(root, i) for i in files]
-        data_files.append((python_dir + '/' + root, root_files))
-    return data_files
+def find_package_data(root):
+    directory = os.path.join(root, 'drivers/ansible/templates')
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    return paths
 
 
 setup(
     name='networkautomation',
-    version='0.2',
+    version='0.3',
     python_requires='>=3.6.0',
-    packages=find_packages(
-        where='.',
-        include=['networkautomation*'],
-        exclude=['*test*']
-    ),
-    package_dir={"": "."},
+    packages=find_packages(),
     url='',
     license='',
     author='datlq3',
     author_email='datlq3@viettel.com.vn',
     description='Network Automation Framework',
-    data_files=find_data_files('drivers/ansible/templates'),
+    package_data={
+        '': find_package_data('networkautomation')
+    },
     cmdclass={'install': NetworkAutomationInstaller},
     install_requires=required
 )
