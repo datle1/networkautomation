@@ -1,20 +1,30 @@
+import os
 import unittest
 from unittest import TestCase
 
 from networkautomation import common, job_manager, network_function
 
 
+def authen_with_env():
+    credentials = {}
+    try:
+        credentials = {
+            "auth_url": os.environ['AUTH_URL'],
+            "username": os.environ['USER_OCTAVIA'],
+            "password": os.environ['PASS_OCTAVIA']
+        }
+    except KeyError:
+        pass
+    return credentials
+
+
 class OctaviaLoadBalancerTest(TestCase):
     def __init__(self, *args, **kwargs):
         super(OctaviaLoadBalancerTest, self).__init__(*args, **kwargs)
-        self.target = network_function.NetworkFunction('loadbalancer',
-                                                       'octavia',
-                                                       'amphora',
-                                                       '2.0',
-                                                       'localhost',
-                                                       other_auth_info={'username': 'admin',
-                                                                        'password': 'admin',
-                                                                        'auth_url': 'http://127.0.0.1/v3'})
+        credentials = authen_with_env()
+        self.target = network_function.NetworkFunction(nf_type='loadbalancer', vendor='octavia', os='amphora',
+                                                       version='2.0', mgmt_ip='localhost',
+                                                       other_auth_info=credentials)
         self.job_mgr = job_manager.JobManager()
 
     @unittest.skip
@@ -22,6 +32,7 @@ class OctaviaLoadBalancerTest(TestCase):
         loadbalancer = {
             'admin_state_up': True,
             'name': 'lb_123',
+            'address': '10.60.31.58',
             'network_id': '764dc206-6f84-4e12-831e-d277ddf6c9c9',
             'provider': 'octavia',
             'listeners': [
@@ -99,8 +110,7 @@ class OctaviaLoadBalancerTest(TestCase):
         }
 
         success, message = self.job_mgr.execute_job(target=self.target,
-                                                    data_model={'loadbalancer':
-                                                                    loadbalancer},
+                                                    data_model={'loadbalancer': loadbalancer},
                                                     action=common.ActionType.CREATE,
                                                     element='loadbalancer',
                                                     timeout=1300)
@@ -126,8 +136,7 @@ class OctaviaLoadBalancerTest(TestCase):
         }
 
         success, message = self.job_mgr.execute_job(target=self.target,
-                                                    data_model={'loadbalancer':
-                                                                    loadbalancer},
+                                                    data_model={'loadbalancer': loadbalancer},
                                                     action=common.ActionType.CREATE,
                                                     element='member',
                                                     timeout=1300)
@@ -153,8 +162,7 @@ class OctaviaLoadBalancerTest(TestCase):
         }
 
         success, message = self.job_mgr.execute_job(target=self.target,
-                                                    data_model={'loadbalancer':
-                                                                    loadbalancer},
+                                                    data_model={'loadbalancer': loadbalancer},
                                                     action=common.ActionType.DELETE,
                                                     element='member',
                                                     timeout=1300)
@@ -165,6 +173,7 @@ class OctaviaLoadBalancerTest(TestCase):
         loadbalancer = {
             'admin_state_up': True,
             'name': 'lb_123',
+            'address': '10.60.31.58',
             'network_id': '764dc206-6f84-4e12-831e-d277ddf6c9c9',
             'provider': 'octavia',
             'listeners': [
@@ -242,8 +251,7 @@ class OctaviaLoadBalancerTest(TestCase):
         }
 
         success, message = self.job_mgr.execute_job(target=self.target,
-                                                    data_model={'loadbalancer':
-                                                                    loadbalancer},
+                                                    data_model={'loadbalancer': loadbalancer},
                                                     action=common.ActionType.DELETE,
                                                     element='loadbalancer',
                                                     timeout=1300)
