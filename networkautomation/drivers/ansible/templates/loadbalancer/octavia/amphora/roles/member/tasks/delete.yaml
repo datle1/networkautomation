@@ -1,5 +1,5 @@
 ---
-- name: Create members of vLB
+- name: Delete members of vLB
   openstack.cloud.lb_member:
     auth:
       auth_url: "{{ auth_url }}"
